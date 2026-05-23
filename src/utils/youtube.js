@@ -8,20 +8,38 @@ const PIPED_INSTANCES = [
   'https://pipedapi.colt.top'
 ];
 
-let isLocalAvailable = null; // null = unknown, true = active, false = offline
+let isBackendAvailable = null; // null = unknown, true = active, false = offline
+let activeApiUrl = ''; // Base URL for the active API
 
-async function checkLocalHealth() {
+async function checkBackendHealth() {
+  // 1. Try checking the current host origin first (e.g. on Vercel deployment)
+  try {
+    const response = await fetch('/health', { signal: AbortSignal.timeout(1500) });
+    if (response.ok) {
+      const data = await response.json();
+      if (data.status === 'ok') {
+        isBackendAvailable = true;
+        activeApiUrl = window.location.origin;
+        return true;
+      }
+    }
+  } catch (err) {}
+
+  // 2. Fallback: try checking the local dev server
   try {
     const response = await fetch(`${LOCAL_API}/health`, { signal: AbortSignal.timeout(1200) });
     if (response.ok) {
       const data = await response.json();
       if (data.status === 'ok') {
-        isLocalAvailable = true;
+        isBackendAvailable = true;
+        activeApiUrl = LOCAL_API;
         return true;
       }
     }
   } catch (err) {}
-  isLocalAvailable = false;
+
+  isBackendAvailable = false;
+  activeApiUrl = '';
   return false;
 }
 
@@ -60,19 +78,19 @@ function purifyQuery(query) {
 export async function searchYoutube(query) {
   const purified = purifyQuery(query);
   
-  // Dynamically check if the local python server is running on first request
-  if (isLocalAvailable === null) {
-    await checkLocalHealth();
+  // Dynamically check if the backend is running
+  if (isBackendAvailable === null) {
+    await checkBackendHealth();
   }
   
-  if (isLocalAvailable) {
+  if (isBackendAvailable) {
     try {
-      const response = await fetch(`${LOCAL_API}/search?q=${encodeURIComponent(purified)}`);
+      const response = await fetch(`${activeApiUrl}/search?q=${encodeURIComponent(purified)}`);
       if (response.ok) {
         return await response.json();
       }
     } catch (err) {
-      console.warn('Local search failed, trying public Piped fallback...', err);
+      console.warn('Backend search failed, trying public Piped fallback...', err);
     }
   }
   
@@ -97,14 +115,14 @@ export async function searchYoutube(query) {
 }
 
 export async function fetchYoutubeStreamUrl(videoId) {
-  // Check health status of local server
-  if (isLocalAvailable === null) {
-    await checkLocalHealth();
+  // Check health status of backend
+  if (isBackendAvailable === null) {
+    await checkBackendHealth();
   }
   
-  if (isLocalAvailable) {
+  if (isBackendAvailable) {
     try {
-      const response = await fetch(`${LOCAL_API}/stream?id=${videoId}`);
+      const response = await fetch(`${activeApiUrl}/stream?id=${videoId}`);
       if (response.ok) {
         const data = await response.json();
         if (data.url) {
@@ -112,7 +130,7 @@ export async function fetchYoutubeStreamUrl(videoId) {
         }
       }
     } catch (err) {
-      console.warn('Local stream resolution failed, trying public Piped fallback...', err);
+      console.warn('Backend stream resolution failed, trying public Piped fallback...', err);
     }
   }
   
@@ -130,6 +148,6 @@ export async function fetchYoutubeStreamUrl(videoId) {
 }
 
 export function isLocalBackendActive() {
-  return isLocalAvailable;
+  return isBackendAvailable;
 }
 

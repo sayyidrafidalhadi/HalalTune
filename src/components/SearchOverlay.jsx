@@ -194,13 +194,24 @@ export default function SearchOverlay({ onClose }) {
                       textAlign: 'center'
                     }}>
                       <i className="fa-solid fa-circle-info" style={{ marginRight: '8px', fontSize: '14px' }}></i>
-                      <strong>Enable YouTube Search & Playback</strong>
-                      <p style={{ margin: '6px 0 0 0', color: '#aaa', fontSize: '12px' }}>
-                        To search and stream the entire YouTube library instantly, start the local Python server:
-                        <code style={{ display: 'block', background: '#111', padding: '6px', borderRadius: '6px', margin: '6px 0 2px 0', fontFamily: 'monospace', color: '#ffc107', border: '1px solid #222' }}>
-                          python server.py
-                        </code>
-                      </p>
+                      {window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? (
+                        <>
+                          <strong>Enable YouTube Search & Playback</strong>
+                          <p style={{ margin: '6px 0 0 0', color: '#aaa', fontSize: '12px' }}>
+                            To search and stream the entire YouTube library instantly, start the local Python server:
+                            <code style={{ display: 'block', background: '#111', padding: '6px', borderRadius: '6px', margin: '6px 0 2px 0', fontFamily: 'monospace', color: '#ffc107', border: '1px solid #222' }}>
+                              python server.py
+                            </code>
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <strong>Backend Service Offline</strong>
+                          <p style={{ margin: '6px 0 0 0', color: '#aaa', fontSize: '12px' }}>
+                            Could not connect to YouTube search API. Falling back to public Piped instances, which may experience rate limits.
+                          </p>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
@@ -218,7 +229,11 @@ export default function SearchOverlay({ onClose }) {
                     lineHeight: '1.5',
                     textAlign: 'center'
                   }}>
-                    <span style={{ color: '#e0a800', fontWeight: 'bold' }}>Note:</span> YouTube search is offline. Run <code style={{ color: '#ffc107', background: '#111', padding: '2px 6px', borderRadius: '4px' }}>python server.py</code> to enable streaming.
+                    <span style={{ color: '#e0a800', fontWeight: 'bold' }}>Note:</span> YouTube search backend is offline. {
+                      window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                        ? <>Run <code style={{ color: '#ffc107', background: '#111', padding: '2px 6px', borderRadius: '4px' }}>python server.py</code> to enable streaming.</>
+                        : <>Using public Piped proxy fallback.</>
+                    }
                   </div>
                 </div>
               )}
@@ -239,13 +254,24 @@ export default function SearchOverlay({ onClose }) {
                   textAlign: 'center'
                 }}>
                   <i className="fa-solid fa-circle-info" style={{ marginRight: '8px', fontSize: '14px' }}></i>
-                  <strong>Enable YouTube Search & Playback</strong>
-                  <p style={{ margin: '6px 0 0 0', color: '#aaa', fontSize: '12px' }}>
-                    To search and stream the entire YouTube library instantly, start the local Python server:
-                    <code style={{ display: 'block', background: '#111', padding: '6px', borderRadius: '6px', margin: '6px 0 2px 0', fontFamily: 'monospace', color: '#ffc107', border: '1px solid #222' }}>
-                      python server.py
-                    </code>
-                  </p>
+                  {window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? (
+                    <>
+                      <strong>Enable YouTube Search & Playback</strong>
+                      <p style={{ margin: '6px 0 0 0', color: '#aaa', fontSize: '12px' }}>
+                        To search and stream the entire YouTube library instantly, start the local Python server:
+                        <code style={{ display: 'block', background: '#111', padding: '6px', borderRadius: '6px', margin: '6px 0 2px 0', fontFamily: 'monospace', color: '#ffc107', border: '1px solid #222' }}>
+                          python server.py
+                        </code>
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <strong>Backend Service Offline</strong>
+                      <p style={{ margin: '6px 0 0 0', color: '#aaa', fontSize: '12px' }}>
+                        Could not connect to YouTube search API. Falling back to public Piped instances, which may experience rate limits.
+                      </p>
+                    </>
+                  )}
                 </div>
               )}
             </div>
