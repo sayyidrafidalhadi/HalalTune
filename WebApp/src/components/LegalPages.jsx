@@ -23,7 +23,7 @@ export function PrivacyPage({ onClose }) {
         <p><strong>Usage Data:</strong> We collect information about the songs you play, including stream counts and listener identifiers, to improve our recommendation engine and analytics. Your liked songs are stored under your user account.</p>
         <p><strong>Locally Stored Data:</strong> Your recently played songs and anonymous user ID are stored in your device's localStorage. This data never leaves your device unless you are signed in.</p>
         <h3>3. How We Use Your Information</h3>
-        <p>We use the information we collect to provide and improve the HalalTune service, personalise your experience (Recents, Liked Songs), generate aggregated analytics for our admin dashboard, and maintain the security of the platform. We do not sell, trade, or rent your personal information to third parties.</p>
+        <p>We use the information we collect to provide and improve the HalalTune service, personalise your experience (Recents, Liked Songs), generate aggregated analytics to improve our content, and maintain the security of the platform. We do not sell, trade, or rent your personal information to third parties.</p>
         <h3>4. Third-Party Services</h3>
         <p><strong>Firebase (Google):</strong> We use Firebase Authentication and Firestore for user management and data storage. Your data is subject to Google's Privacy Policy.</p>
         <p><strong>Cloudinary:</strong> Audio files and cover art are hosted on Cloudinary's CDN. Media files do not contain personally identifiable information.</p>
