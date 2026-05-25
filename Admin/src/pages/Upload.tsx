@@ -59,7 +59,7 @@ export function UploadPage() {
     try {
       // 1. Upload Audio
       const audioFile = files[0];
-      const audioResult = await uploadToCloudinary(audioFile, "video");
+      const audioResult = await uploadToCloudinary(audioFile, "auto");
       setProgress(50);
 
       // 2. Upload Artwork if exists
@@ -78,7 +78,7 @@ export function UploadPage() {
         description,
         audioUrl: audioResult.secure_url,
         artworkUrl,
-        duration: audioResult.duration,
+        duration: audioResult.duration || 0,
         format: audioResult.format,
         createdAt: serverTimestamp(),
         status: "pending",
@@ -94,10 +94,12 @@ export function UploadPage() {
         setArtist("");
         setDescription("");
         setArtwork(null);
+        alert("Content published successfully!");
       }, 1000);
 
     } catch (err: any) {
-      alert("Upload failed: " + err.message);
+      console.error("Upload process failed:", err);
+      alert("Upload failed: " + err.message + "\n\nTip: Check browser console (F12) for details.");
       setUploading(false);
     }
   };
