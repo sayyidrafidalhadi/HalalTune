@@ -3,12 +3,12 @@ import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyD7bc74wJSIRi1_BhDqFjEMG2mE3noBm4g',
-  authDomain: 'halaltune-6c908.firebaseapp.com',
-  projectId: 'halaltune-6c908',
-  storageBucket: 'halaltune-6c908.firebasestorage.app',
-  messagingSenderId: '159242961546',
-  appId: '1:159242961546:web:65bdcd9c3fee61c661e373',
+  apiKey: 'AIzaSyDJZOb29N5tFPfauXMd4683Tbt3aq5Z7po',
+  authDomain: 'halaltune-41309.firebaseapp.com',
+  projectId: 'halaltune-41309',
+  storageBucket: 'halaltune-41309.firebasestorage.app',
+  messagingSenderId: '863902327952',
+  appId: '1:863902327952:web:e0efe47977994f1b74e415',
 };
 
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
