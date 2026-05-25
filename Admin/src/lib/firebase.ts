@@ -11,6 +11,11 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+console.log("Firebase: Initializing with API Key:", firebaseConfig.apiKey ? "Present" : "MISSING");
+if (!firebaseConfig.apiKey) {
+  console.error("Firebase Configuration Error: VITE_FIREBASE_API_KEY is not defined. Check Vercel Environment Variables.");
+}
+
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 export const auth = getAuth(app);
 export const db = getFirestore(app);
