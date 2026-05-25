@@ -1,12 +1,12 @@
 export const uploadToCloudinary = async (file: File, resourceType: "auto" | "image" | "video" = "auto") => {
-  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+  // Use environment variables if present, otherwise fall back to provided defaults
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dcidrwk1e';
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'HalalTune';
 
-  console.log("Cloudinary: Starting upload...", { resourceType, fileName: file.name });
+  console.log("Cloudinary: Starting upload...", { resourceType, fileName: file.name, cloudName, uploadPreset });
 
   if (!cloudName || !uploadPreset) {
-    console.error("Cloudinary Configuration Missing:", { cloudName, uploadPreset });
-    throw new Error("Cloudinary configuration missing. Please set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET in Vercel.");
+    throw new Error("Cloudinary configuration missing.");
   }
 
   const formData = new FormData();
@@ -14,8 +14,7 @@ export const uploadToCloudinary = async (file: File, resourceType: "auto" | "ima
   formData.append("upload_preset", uploadPreset);
 
   const url = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
-  console.log("Cloudinary: Fetching URL:", url);
-
+  
   try {
     const response = await fetch(url, {
       method: "POST",
@@ -34,7 +33,7 @@ export const uploadToCloudinary = async (file: File, resourceType: "auto" | "ima
   } catch (error: any) {
     console.error("Cloudinary Fetch Exception:", error);
     if (error.message === "Failed to fetch") {
-      throw new Error("Failed to connect to Cloudinary. This is often a CORS issue or an invalid Cloud Name. Check your Cloud Name and ensure your Upload Preset is set to 'Unsigned'.");
+      throw new Error("Failed to connect to Cloudinary. Ensure your Cloud Name is 'dcidrwk1e' and your Upload Preset 'HalalTune' is set to 'Unsigned' in Cloudinary Settings -> Upload.");
     }
     throw error;
   }
