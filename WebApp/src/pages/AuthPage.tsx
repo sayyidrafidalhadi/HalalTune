@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { useAuthStore } from "@/store/authStore"
-import { loginWithGoogle, loginWithEmail, registerWithEmail, resetPassword } from "@/services/authService"
+import { loginWithGoogle, loginWithEmail, registerWithEmail, resetPassword, mapSupabaseUser } from "@/services/authService"
 import { APP_ICON } from "@/lib/constants"
 
 type AuthView = "login" | "register" | "forgot"
@@ -30,18 +30,11 @@ export default function AuthPage() {
     setAuthLoading(true)
     setAuthError(null)
     try {
-      const firebaseUser = await loginWithGoogle()
-      setUser({
-        uid: firebaseUser.uid,
-        displayName: firebaseUser.displayName || undefined,
-        email: firebaseUser.email || undefined,
-        photoURL: firebaseUser.photoURL || undefined,
-      })
-      navigate("/profile", { replace: true })
+      await loginWithGoogle()
     } catch (e: unknown) {
       setAuthError(e instanceof Error ? e.message : "Google login failed")
+      setAuthLoading(false)
     }
-    setAuthLoading(false)
   }
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -50,21 +43,11 @@ export default function AuthPage() {
     setAuthLoading(true)
     try {
       if (view === "register") {
-        const firebaseUser = await registerWithEmail(email, password, displayName)
-        setUser({
-          uid: firebaseUser.uid,
-          displayName: firebaseUser.displayName || undefined,
-          email: firebaseUser.email || undefined,
-          photoURL: firebaseUser.photoURL || undefined,
-        })
+        const supabaseUser = await registerWithEmail(email, password, displayName)
+        setUser(mapSupabaseUser(supabaseUser))
       } else {
-        const firebaseUser = await loginWithEmail(email, password)
-        setUser({
-          uid: firebaseUser.uid,
-          displayName: firebaseUser.displayName || undefined,
-          email: firebaseUser.email || undefined,
-          photoURL: firebaseUser.photoURL || undefined,
-        })
+        const supabaseUser = await loginWithEmail(email, password)
+        setUser(mapSupabaseUser(supabaseUser))
       }
       navigate("/profile", { replace: true })
     } catch (e: unknown) {
@@ -118,11 +101,11 @@ export default function AuthPage() {
             >
               {resetSent ? (
                 <div className="text-center space-y-4 py-8">
-                  <i className="fa-solid fa-paper-plane text-emerald-400 text-4xl" />
+                  <i className="fa-solid fa-paper-plane text-white text-4xl" />
                   <p className="text-sm text-white/60">Reset link sent! Check your email.</p>
                   <button
                     onClick={() => { setView("login"); setResetSent(false) }}
-                    className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
+                    className="text-sm text-white hover:text-white/70 transition-colors"
                   >
                     Back to sign in
                   </button>

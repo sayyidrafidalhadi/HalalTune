@@ -39,10 +39,10 @@ function TrackRow({ track, index, isActive, isPlaying, onPlay }: TrackRowProps) 
       )}
     >
       {/* Number / Play button */}
-      <div className="text-sm text-emerald-400/40 text-right tabular-nums group-hover:hidden">
-        {isActive ? <i className="fa-solid fa-volume-high text-emerald-400 text-xs" /> : index + 1}
+      <div className="text-sm text-white/40 text-right tabular-nums group-hover:hidden">
+        {isActive ? <i className="fa-solid fa-volume-high text-white text-xs" /> : index + 1}
       </div>
-      <div className="hidden group-hover:flex items-center justify-end text-sm text-emerald-400">
+      <div className="hidden group-hover:flex items-center justify-end text-sm text-white">
         <i className={`fa-solid ${isActive && isPlaying ? "fa-pause" : "fa-play"} text-xs ${isActive && isPlaying ? "" : "ml-0.5"}`} />
       </div>
 
@@ -55,35 +55,35 @@ function TrackRow({ track, index, isActive, isPlaying, onPlay }: TrackRowProps) 
           {track.coverArt ? (
             <img src={track.coverArt} alt="" className="w-full h-full object-cover" />
           ) : (
-            <i className="fa-solid fa-music text-xs text-emerald-400/20" />
+            <i className="fa-solid fa-music text-xs text-white/20" />
           )}
         </div>
         <div className="min-w-0">
           <p className={cn(
             "text-sm truncate font-medium",
-            isActive ? "text-emerald-400" : "text-emerald-400 group-hover:text-emerald-400/90"
+            isActive ? "text-white" : "text-white group-hover:text-white/90"
           )}>
             {track.title}
           </p>
-          <p className="text-xs text-emerald-400/40 truncate md:hidden">{track.artist}</p>
+          <p className="text-xs text-white/40 truncate md:hidden">{track.artist}</p>
         </div>
       </div>
 
       {/* Artist (desktop) */}
-      <p className="hidden md:block text-sm text-emerald-400/40 truncate hover:text-emerald-400/70 transition-colors">
+      <p className="hidden md:block text-sm text-white/40 truncate hover:text-white/70 transition-colors">
         {track.artist}
       </p>
 
       {/* Like */}
       <button
         onClick={(e) => { e.stopPropagation() }}
-        className="text-emerald-400/20 hover:text-emerald-400/60 transition-colors opacity-0 group-hover:opacity-100"
+        className="text-white/20 hover:text-white/60 transition-colors opacity-0 group-hover:opacity-100"
       >
         <i className="fa-regular fa-heart text-xs" />
       </button>
 
       {/* Duration */}
-      <span className="text-sm text-emerald-400/40 tabular-nums text-right">
+      <span className="text-sm text-white/40 tabular-nums text-right">
         {track.duration ? formatTime(track.duration) : "--:--"}
       </span>
     </motion.div>
@@ -162,7 +162,7 @@ export default function PlaylistPage() {
                   transition={{ duration: 0.7, ease: easings }}
                 />
               ) : (
-                <i className="fa-solid fa-list text-6xl md:text-7xl text-emerald-400/10" />
+                <i className="fa-solid fa-list text-6xl md:text-7xl text-white/10" />
               )}
             </motion.div>
 
@@ -173,20 +173,20 @@ export default function PlaylistPage() {
               transition={{ duration: 0.5, delay: 0.1, ease: easings }}
               className="min-w-0 text-center md:text-left"
             >
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-400/50 mb-2">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/50 mb-2">
                 <i className="fa-solid fa-list mr-1.5" />
                 Playlist
               </p>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold truncate mb-2 text-emerald-400 drop-shadow-lg">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold truncate mb-2 text-white drop-shadow-lg">
                 {playlist.name}
               </h1>
               {playlist.description && (
-                <p className="text-sm md:text-base text-emerald-400/50 max-w-lg line-clamp-2 mb-2">
+                <p className="text-sm md:text-base text-white/50 max-w-lg line-clamp-2 mb-2">
                   {playlist.description}
                 </p>
               )}
-              <p className="text-sm text-emerald-400/40">
-                <span className="text-emerald-400/70 font-medium">HalalTune</span>
+              <p className="text-sm text-white/40">
+                <span className="text-white/70 font-medium">HalalTune</span>
                 {" · "}{playlistTracks.length} track{playlistTracks.length !== 1 ? "s" : ""}
                 {playlistTracks.length > 0 && ` · ${durationStr}`}
               </p>
@@ -207,7 +207,7 @@ export default function PlaylistPage() {
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={() => handlePlayAll(true)}
-                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 text-emerald-400 text-sm font-semibold hover:bg-white/20 transition-colors border border-white/10"
+                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 text-white text-sm font-semibold hover:bg-white/20 transition-colors border border-white/10"
                 >
                   <i className="fa-solid fa-shuffle text-sm" />
                   Shuffle
@@ -219,8 +219,8 @@ export default function PlaylistPage() {
                   className={cn(
                     "p-3 rounded-full transition-all border",
                     liked
-                      ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
-                      : "bg-white/5 border-white/10 text-emerald-400/40 hover:text-emerald-400 hover:bg-white/10"
+                      ? "bg-emerald-500/20 border-emerald-500/30 text-white"
+                      : "bg-white/5 border-white/10 text-white/40 hover:text-white hover:bg-white/10"
                   )}
                 >
                   <i className={`fa-solid ${liked ? "fa-heart" : "fa-heart"} text-sm`} />
@@ -235,7 +235,7 @@ export default function PlaylistPage() {
                       navigator.clipboard?.writeText(window.location.href)
                     }
                   }}
-                  className="p-3 rounded-full bg-white/5 border border-white/10 text-emerald-400/40 hover:text-emerald-400 hover:bg-white/10 transition-all"
+                  className="p-3 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-white hover:bg-white/10 transition-all"
                 >
                   <i className="fa-solid fa-arrow-up-from-bracket text-sm" />
                 </motion.button>
@@ -254,7 +254,7 @@ export default function PlaylistPage() {
       >
         {/* Table header */}
         {playlistTracks.length > 0 && (
-          <div className="grid grid-cols-[32px_1fr_auto_auto] md:grid-cols-[32px_1fr_1fr_auto_auto] gap-3 md:gap-4 items-center px-3 pb-2 mb-1 border-b border-white/[0.06] text-xs text-emerald-400/30 uppercase tracking-wider font-semibold">
+          <div className="grid grid-cols-[32px_1fr_auto_auto] md:grid-cols-[32px_1fr_1fr_auto_auto] gap-3 md:gap-4 items-center px-3 pb-2 mb-1 border-b border-white/[0.06] text-xs text-white/30 uppercase tracking-wider font-semibold">
             <span className="text-right">#</span>
             <span>Title</span>
             <span className="hidden md:block">Artist</span>

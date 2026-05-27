@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Howl } from 'howler'
 import { usePlayerStore } from '@/store/playerStore'
 import { useAuthStore } from '@/store/authStore'
-import { incrementTrackStream, addToHistory } from '@/services/firestoreService'
+import { incrementTrackStream, addToHistory } from '@/services/supabaseService'
 import type { Track } from '@/types'
 
 const STREAM_THRESHOLD = 30

@@ -38,14 +38,14 @@ function SurahCard({ surah, isBookmarked, onPlay, onToggleBookmark, index }: {
       onClick={onPlay}
     >
       <div className="flex items-start justify-between mb-3">
-        <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-400 shrink-0">
+        <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-xs font-bold text-white shrink-0">
           {surah.number.toString().padStart(2, "0")}
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); onToggleBookmark() }}
           className={cn(
             "text-sm transition-colors p-1",
-            isBookmarked ? "text-emerald-400" : "text-emerald-400/20 opacity-0 group-hover:opacity-100"
+            isBookmarked ? "text-white" : "text-white/20 opacity-0 group-hover:opacity-100"
           )}
         >
           <i className={`fa-solid ${isBookmarked ? "fa-bookmark" : "fa-bookmark"}`} />
@@ -53,7 +53,7 @@ function SurahCard({ surah, isBookmarked, onPlay, onToggleBookmark, index }: {
       </div>
       <p className="text-lg font-arabic text-right mb-1 opacity-80" dir="rtl">{surah.arabicName}</p>
       <p className="font-semibold text-sm truncate">{surah.name}</p>
-      <div className="flex items-center gap-2 mt-1.5 text-xs text-emerald-400/40">
+      <div className="flex items-center gap-2 mt-1.5 text-xs text-white/40">
         <span>{surah.verses} verses</span>
         <span>·</span>
         <span className={surah.revelation === "Meccan" ? "text-blue-400/60" : "text-amber-400/60"}>{surah.revelation}</span>
@@ -74,11 +74,11 @@ function ReciterCard({ reciter, index, onSelect }: { reciter: Reciter; index: nu
       className="group p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-emerald-500/20 transition-all cursor-pointer text-center"
     >
       <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-emerald-600/20 to-emerald-800/10 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform shadow-lg border border-white/5">
-        <i className="fa-solid fa-microphone text-2xl text-emerald-400/50" />
+        <i className="fa-solid fa-microphone text-2xl text-white/50" />
       </div>
       <p className="font-semibold text-sm truncate">{reciter.name}</p>
-      <p className="text-xs text-emerald-400/40 mt-0.5" dir="rtl">{reciter.arabicName}</p>
-      <p className="text-[10px] text-emerald-400/30 mt-1.5">{reciter.style} · {reciter.riwayah}</p>
+      <p className="text-xs text-white/40 mt-0.5" dir="rtl">{reciter.arabicName}</p>
+      <p className="text-[10px] text-white/30 mt-1.5">{reciter.style} · {reciter.riwayah}</p>
     </motion.div>
   )
 }
@@ -144,11 +144,11 @@ export default function QuranPage() {
       >
         <div className="flex items-center gap-3 mb-1">
           <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-            <i className="fa-solid fa-quran text-emerald-400 text-sm" />
+            <i className="fa-solid fa-quran text-white text-sm" />
           </div>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Al-Quran</h1>
         </div>
-        <p className="text-emerald-400/40 text-sm ml-11">Listen, reflect, and connect with the divine words</p>
+        <p className="text-white/40 text-sm ml-11">Listen, reflect, and connect with the divine words</p>
       </motion.div>
 
       {/* Continue listening banner */}
@@ -163,10 +163,10 @@ export default function QuranPage() {
             <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-emerald-600/5 to-transparent border border-emerald-500/20">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0">
-                  <i className="fa-solid fa-play text-emerald-400 text-sm ml-0.5" />
+                  <i className="fa-solid fa-play text-white text-sm ml-0.5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-emerald-400/40">Continue Listening</p>
+                  <p className="text-xs text-white/40">Continue Listening</p>
                   <p className="text-sm font-semibold truncate">{continueSurah.name} ({continueSurah.arabicName})</p>
                 </div>
                 <button
@@ -177,7 +177,7 @@ export default function QuranPage() {
                 </button>
                 <button
                   onClick={() => { setContinueData(null); localStorage.removeItem("quran_continue") }}
-                  className="text-emerald-400/30 hover:text-emerald-400/60 p-1 shrink-0"
+                  className="text-white/30 hover:text-white/60 p-1 shrink-0"
                 >
                   <i className="fa-solid fa-xmark" />
                 </button>
@@ -199,7 +199,7 @@ export default function QuranPage() {
             onClick={() => setActiveTab(tab.key)}
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all",
-              activeTab === tab.key ? "bg-white text-black shadow-lg" : "text-emerald-400/40 hover:text-emerald-400/70"
+              activeTab === tab.key ? "bg-white text-black shadow-lg" : "text-white/40 hover:text-white/70"
             )}
           >
             <i className={`fa-solid ${tab.icon} text-xs`} />
@@ -219,13 +219,13 @@ export default function QuranPage() {
           {/* Search + filters */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400/25 text-sm" />
+              <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-white/25 text-sm" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search surahs..."
-                className="w-full h-11 pl-10 pr-4 rounded-2xl bg-white/5 border border-white/10 text-emerald-400 text-sm placeholder:text-emerald-400/25 focus:outline-none focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-500/10 transition-all"
+                className="w-full h-11 pl-10 pr-4 rounded-2xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-500/10 transition-all"
               />
             </div>
             <div className="flex gap-1.5">
@@ -236,8 +236,8 @@ export default function QuranPage() {
                   className={cn(
                     "px-4 py-2 rounded-full text-xs font-semibold transition-all border",
                     revelationFilter === f.key
-                      ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
-                      : "bg-white/5 border-white/10 text-emerald-400/50 hover:text-emerald-400 hover:bg-white/10"
+                      ? "bg-emerald-500/15 border-emerald-500/30 text-white"
+                      : "bg-white/5 border-white/10 text-white/50 hover:text-white hover:bg-white/10"
                   )}
                 >
                   {f.label}
@@ -248,7 +248,7 @@ export default function QuranPage() {
 
           {/* Reciter selector */}
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
-            <span className="text-xs text-emerald-400/30 font-medium shrink-0">Reciter:</span>
+            <span className="text-xs text-white/30 font-medium shrink-0">Reciter:</span>
             {RECITERS.slice(0, 6).map((r) => (
               <button
                 key={r.id}
@@ -256,8 +256,8 @@ export default function QuranPage() {
                 className={cn(
                   "px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all border shrink-0",
                   selectedReciter === r.id
-                    ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
-                    : "bg-white/5 border-white/10 text-emerald-400/50 hover:text-emerald-400"
+                    ? "bg-emerald-500/15 border-emerald-500/30 text-white"
+                    : "bg-white/5 border-white/10 text-white/50 hover:text-white"
                 )}
               >
                 {r.name.split(" ").slice(0, 2).join(" ")}
@@ -287,7 +287,7 @@ export default function QuranPage() {
 
           {/* Juz quick nav */}
           <div className="pt-6">
-            <p className="text-xs text-emerald-400/30 font-semibold uppercase tracking-wider mb-3">Jump to Juz</p>
+            <p className="text-xs text-white/30 font-semibold uppercase tracking-wider mb-3">Jump to Juz</p>
             <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-2">
               {Array.from({ length: 30 }, (_, i) => i + 1).map((j) => {
                 const surahsInJuz = SURAHS.filter((s) => s.juz.includes(j))
@@ -300,9 +300,9 @@ export default function QuranPage() {
                     }}
                     className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-emerald-500/20 transition-all shrink-0 min-w-[56px]"
                   >
-                    <span className="text-xs font-bold text-emerald-400/70">{j}</span>
-                    <span className="text-[9px] text-emerald-400/30">Juz</span>
-                    {firstSurah && <span className="text-[8px] text-emerald-400/20 truncate max-w-[48px]">{firstSurah.name}</span>}
+                    <span className="text-xs font-bold text-white/70">{j}</span>
+                    <span className="text-[9px] text-white/30">Juz</span>
+                    {firstSurah && <span className="text-[8px] text-white/20 truncate max-w-[48px]">{firstSurah.name}</span>}
                   </button>
                 )
               })}
@@ -311,7 +311,7 @@ export default function QuranPage() {
 
           {/* Tafsir audio section */}
           <section className="pt-4">
-            <h2 className="text-sm font-bold text-emerald-400/50 uppercase tracking-widest mb-3">
+            <h2 className="text-sm font-bold text-white/50 uppercase tracking-widest mb-3">
               <i className="fa-solid fa-book-open mr-2" />
               Tafsir Audio
             </h2>
@@ -332,10 +332,10 @@ export default function QuranPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{tafsir.title}</p>
-                      <p className="text-xs text-emerald-400/40 truncate">{tafsir.speaker} · {Math.floor(tafsir.duration / 60)} min</p>
-                      {surah && <p className="text-[10px] text-emerald-400/20 truncate">{surah.arabicName}</p>}
+                      <p className="text-xs text-white/40 truncate">{tafsir.speaker} · {Math.floor(tafsir.duration / 60)} min</p>
+                      {surah && <p className="text-[10px] text-white/20 truncate">{surah.arabicName}</p>}
                     </div>
-                    <button className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-emerald-400/60 hover:bg-white/20 hover:text-emerald-400 transition-all shrink-0">
+                    <button className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-all shrink-0">
                       <i className="fa-solid fa-play text-xs ml-0.5" />
                     </button>
                   </motion.div>

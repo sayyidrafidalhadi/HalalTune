@@ -1,11 +1,11 @@
 import { useState, useRef } from "react"
 import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
-import { updateProfile } from "firebase/auth"
+import { supabase } from "@/supabase"
 import { useAuthStore } from "@/store/authStore"
 import { useLibraryStore } from "@/store/libraryStore"
-import { logout, getCurrentUser } from "@/services/authService"
-import { updateUserProfile } from "@/services/firestoreService"
+import { logout, getUserProfile } from "@/services/authService"
+import { updateUserProfile } from "@/services/supabaseService"
 import { uploadFile } from "@/lib/cloudinary"
 
 export default function ProfilePage() {
@@ -36,11 +36,8 @@ export default function ProfilePage() {
     setSaving(true)
     setStatusMsg(null)
     try {
-      const currentUser = getCurrentUser()
-      if (currentUser) {
-        await updateProfile(currentUser, { displayName: displayName.trim() })
-      }
-      await updateUserProfile(user.uid, { displayName: displayName.trim() })
+      await supabase.auth.updateUser({ data: { display_name: displayName.trim() } })
+      await updateUserProfile(user.uid, { display_name: displayName.trim() })
       setUser({ ...user, displayName: displayName.trim() })
       setStatusMsg("Profile updated")
       setEditing(false)
@@ -60,11 +57,8 @@ export default function ProfilePage() {
       const publicId = await uploadFile(file, "image")
       if (publicId) {
         const photoURL = `https://res.cloudinary.com/dcidrwk1e/image/upload/q_auto/f_auto/v1/${publicId}`
-        const currentUser = getCurrentUser()
-        if (currentUser) {
-          await updateProfile(currentUser, { photoURL })
-        }
-        await updateUserProfile(user.uid, { photoURL })
+        await supabase.auth.updateUser({ data: { photo_url: photoURL } })
+        await updateUserProfile(user.uid, { photo_url: photoURL })
         setUser({ ...user, photoURL })
         setStatusMsg("Photo updated")
       }
@@ -165,7 +159,7 @@ export default function ProfilePage() {
               </div>
             )}
             {statusMsg && (
-              <p className="text-xs text-emerald-400 mt-1">{statusMsg}</p>
+              <p className="text-xs text-white mt-1">{statusMsg}</p>
             )}
           </div>
         </div>
@@ -183,7 +177,7 @@ export default function ProfilePage() {
             onClick={stat.onClick}
             className="p-4 rounded-2xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-colors"
           >
-            <i className={`fa-solid ${stat.icon} text-emerald-400 text-lg mb-2`} />
+            <i className={`fa-solid ${stat.icon} text-white text-lg mb-2`} />
             <p className="text-2xl font-bold">{stat.value}</p>
             <p className="text-xs text-white/50">{stat.label}</p>
           </button>

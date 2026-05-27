@@ -53,7 +53,7 @@ export default function PodcastsPage() {
           >
             <div className="relative z-10">
               <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center mb-3">
-                <i className="fa-solid fa-podcast text-emerald-400" />
+                <i className="fa-solid fa-podcast text-white" />
               </div>
               <h3 className="font-bold text-base mb-1">{podcast.title}</h3>
               <p className="text-sm text-white/50 mb-2">{podcast.host}</p>

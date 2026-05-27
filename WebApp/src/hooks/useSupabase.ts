@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { where, orderBy, limit, type QueryConstraint } from "firebase/firestore"
 import {
   fetchTracks,
   fetchRecentTracks,
@@ -15,8 +14,8 @@ import {
   fetchUserHistory,
   addToHistory,
   fetchDownloadedTrackIds,
-  toggleDownload as toggleDownloadInFirestore,
-  toggleLike as toggleLikeInFirestore,
+  toggleDownload as toggleDownloadInDb,
+  toggleLike as toggleLikeInDb,
   fetchPodcasts,
   fetchEpisodes,
   fetchArtists,
@@ -25,7 +24,7 @@ import {
   fetchAlbumById,
   incrementTrackStream,
   searchTracks,
-} from "@/services/firestoreService"
+} from "@/services/supabaseService"
 import { useAuthStore } from "@/store/authStore"
 import type { Track, Playlist } from "@/types"
 
@@ -37,10 +36,10 @@ const STALE = {
 
 // ── Track Queries ──────────────────────────────────────────────────
 
-export function useTracks(...constraints: QueryConstraint[]) {
+export function useTracks() {
   return useQuery({
-    queryKey: ["tracks", ...constraints],
-    queryFn: () => fetchTracks(...constraints),
+    queryKey: ["tracks"],
+    queryFn: fetchTracks,
     staleTime: STALE.DEFAULT,
   })
 }
@@ -153,7 +152,7 @@ export function useToggleLike() {
   const queryClient = useQueryClient()
   const user = useAuthStore((s) => s.user)
   return useMutation({
-    mutationFn: (trackId: string) => toggleLikeInFirestore(user!.uid, trackId),
+    mutationFn: (trackId: string) => toggleLikeInDb(user!.uid, trackId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["likes"] })
     },
@@ -193,7 +192,7 @@ export function useToggleDownload() {
   const queryClient = useQueryClient()
   const user = useAuthStore((s) => s.user)
   return useMutation({
-    mutationFn: (trackId: string) => toggleDownloadInFirestore(user!.uid, trackId),
+    mutationFn: (trackId: string) => toggleDownloadInDb(user!.uid, trackId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["downloads"] })
     },
@@ -210,10 +209,10 @@ export function useIncrementStream() {
 
 // ── Podcast Queries ────────────────────────────────────────────────
 
-export function usePodcasts(...constraints: QueryConstraint[]) {
+export function usePodcasts() {
   return useQuery({
-    queryKey: ["podcasts", ...constraints],
-    queryFn: () => fetchPodcasts(...constraints),
+    queryKey: ["podcasts"],
+    queryFn: fetchPodcasts,
     staleTime: STALE.DEFAULT,
   })
 }
@@ -229,10 +228,10 @@ export function useEpisodes(podcastId: string | undefined) {
 
 // ── Artist & Album Queries ─────────────────────────────────────────
 
-export function useArtists(...constraints: QueryConstraint[]) {
+export function useArtists() {
   return useQuery({
-    queryKey: ["artists", ...constraints],
-    queryFn: () => fetchArtists(...constraints),
+    queryKey: ["artists"],
+    queryFn: fetchArtists,
     staleTime: STALE.DEFAULT,
   })
 }
@@ -246,10 +245,10 @@ export function useArtistById(id: string | undefined) {
   })
 }
 
-export function useAlbums(...constraints: QueryConstraint[]) {
+export function useAlbums() {
   return useQuery({
-    queryKey: ["albums", ...constraints],
-    queryFn: () => fetchAlbums(...constraints),
+    queryKey: ["albums"],
+    queryFn: fetchAlbums,
     staleTime: STALE.DEFAULT,
   })
 }

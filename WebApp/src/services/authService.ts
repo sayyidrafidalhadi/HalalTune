@@ -1,77 +1,72 @@
-import {
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  setPersistence,
-  browserLocalPersistence,
-  browserSessionPersistence,
-  GoogleAuthProvider,
-  updateProfile,
-  sendPasswordResetEmail,
-  type User,
-} from "firebase/auth"
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore"
-import { auth, db } from "@/firebase"
+import { supabase } from "@/supabase"
+import type { User } from "@supabase/supabase-js"
+import type { UserProfile } from "@/types"
 
 export type AuthMode = "local" | "session"
 
 export function onAuthChange(callback: (user: User | null) => void): () => void {
-  return onAuthStateChanged(auth, callback)
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    callback(session?.user ?? null)
+  })
+  return () => subscription.unsubscribe()
 }
 
 export async function setAuthPersistence(mode: AuthMode): Promise<void> {
-  await setPersistence(auth, mode === "local" ? browserLocalPersistence : browserSessionPersistence)
+  localStorage.setItem("halaltune_auth_persistence", mode)
 }
 
-export async function loginWithGoogle(): Promise<User> {
-  const provider = new GoogleAuthProvider()
-  provider.setCustomParameters({ prompt: "select_account" })
-  const result = await signInWithPopup(auth, provider)
-  await ensureUserProfile(result.user)
-  return result.user
+export async function loginWithGoogle(): Promise<void> {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: `${window.location.origin}/auth` },
+  })
+  if (error) throw error
 }
 
 export async function loginWithEmail(email: string, password: string): Promise<User> {
-  const result = await signInWithEmailAndPassword(auth, email, password)
-  return result.user
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) throw error
+  return data.user
 }
 
 export async function registerWithEmail(email: string, password: string, displayName: string): Promise<User> {
-  const result = await createUserWithEmailAndPassword(auth, email, password)
-  await updateProfile(result.user, { displayName })
-  await ensureUserProfile(result.user, { displayName })
-  return result.user
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { display_name: displayName } },
+  })
+  if (error) throw error
+  if (!data.user) throw new Error("Registration failed — check email for confirmation link")
+  return data.user
 }
 
 export async function logout(): Promise<void> {
-  await signOut(auth)
+  const { error } = await supabase.auth.signOut()
+  if (error) throw error
 }
 
 export async function resetPassword(email: string): Promise<void> {
-  await sendPasswordResetEmail(auth, email)
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/auth`,
+  })
+  if (error) throw error
 }
 
-export async function ensureUserProfile(user: User, extra?: { displayName?: string }): Promise<void> {
-  const userRef = doc(db, "users", user.uid)
-  const snap = await getDoc(userRef)
-
-  if (!snap.exists()) {
-    await setDoc(userRef, {
-      uid: user.uid,
-      displayName: extra?.displayName || user.displayName || "User",
-      email: user.email || "",
-      photoURL: user.photoURL || "",
-      role: "listener",
-      createdAt: serverTimestamp(),
-      lastLogin: serverTimestamp(),
-    })
-  } else {
-    await setDoc(userRef, { lastLogin: serverTimestamp() }, { merge: true })
-  }
+export async function getUserProfile(): Promise<UserProfile | null> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  return mapSupabaseUser(user)
 }
 
 export function getCurrentUser(): User | null {
-  return auth.currentUser
+  return supabase.auth.getSession().then(({ data }) => data.session?.user ?? null) as unknown as User | null
+}
+
+export function mapSupabaseUser(user: User): UserProfile {
+  return {
+    uid: user.id,
+    displayName: user.user_metadata?.display_name || user.user_metadata?.full_name || undefined,
+    email: user.email || undefined,
+    photoURL: user.user_metadata?.photo_url || user.user_metadata?.avatar_url || undefined,
+  }
 }

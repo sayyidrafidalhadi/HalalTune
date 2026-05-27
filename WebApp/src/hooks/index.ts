@@ -26,4 +26,4 @@ export {
   useArtistById,
   useAlbums,
   useAlbumById,
-} from "./useFirestore"
+} from "./useSupabase"

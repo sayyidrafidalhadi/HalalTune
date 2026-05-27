@@ -70,7 +70,7 @@ function PlaylistCard({ playlist, index }: { playlist: Playlist; index: number }
         {playlist.coverArt ? (
           <img src={playlist.coverArt} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
-          <i className="fa-solid fa-list text-4xl text-emerald-400/15" />
+          <i className="fa-solid fa-list text-4xl text-white/15" />
         )}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
           <motion.div
@@ -83,7 +83,7 @@ function PlaylistCard({ playlist, index }: { playlist: Playlist; index: number }
         </div>
       </div>
       <p className="text-sm font-semibold truncate px-0.5">{playlist.name}</p>
-      <p className="text-xs text-emerald-400/40 truncate px-0.5">{playlist.trackIds.length} tracks</p>
+      <p className="text-xs text-white/40 truncate px-0.5">{playlist.trackIds.length} tracks</p>
     </motion.div>
   )
 }
@@ -107,7 +107,7 @@ function TrackGridItem({ track, index, isActive, isPlaying, onPlay }: {
         {track.coverArt ? (
           <img src={track.coverArt} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
-          <i className="fa-solid fa-music text-3xl text-emerald-400/15" />
+          <i className="fa-solid fa-music text-3xl text-white/15" />
         )}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
           <div className="w-12 h-12 rounded-full bg-white/90 text-black flex items-center justify-center shadow-xl opacity-0 group-hover:opacity-100 transition-opacity">
@@ -120,8 +120,8 @@ function TrackGridItem({ track, index, isActive, isPlaying, onPlay }: {
           </div>
         )}
       </div>
-      <p className={cn("text-sm font-medium truncate px-0.5", isActive ? "text-emerald-400" : "text-emerald-400")}>{track.title}</p>
-      <p className="text-xs text-emerald-400/40 truncate px-0.5">{track.artist}</p>
+      <p className={cn("text-sm font-medium truncate px-0.5", isActive ? "text-white" : "text-white")}>{track.title}</p>
+      <p className="text-xs text-white/40 truncate px-0.5">{track.artist}</p>
     </motion.div>
   )
 }
@@ -151,19 +151,19 @@ function TrackListItem({ track, index, isActive, isPlaying, onPlay }: {
         {track.coverArt ? (
           <img src={track.coverArt} alt="" className="w-full h-full object-cover" />
         ) : (
-          <i className="fa-solid fa-music text-xs text-emerald-400/20" />
+          <i className="fa-solid fa-music text-xs text-white/20" />
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className={cn("text-sm truncate font-medium", isActive ? "text-emerald-400" : "text-emerald-400 group-hover:text-emerald-400/90")}>
+        <p className={cn("text-sm truncate font-medium", isActive ? "text-white" : "text-white group-hover:text-white/90")}>
           {track.title}
         </p>
-        <p className="text-xs text-emerald-400/40 truncate">{track.artist}</p>
+        <p className="text-xs text-white/40 truncate">{track.artist}</p>
       </div>
       <div className="flex items-center gap-2.5">
-        {downloaded && <i className="fa-solid fa-circle-check text-emerald-400/60 text-xs" />}
-        {liked && <i className="fa-solid fa-heart text-emerald-400/60 text-xs" />}
-        <span className="text-xs text-emerald-400/30 tabular-nums">{track.duration ? formatTime(track.duration) : "--:--"}</span>
+        {downloaded && <i className="fa-solid fa-circle-check text-white/60 text-xs" />}
+        {liked && <i className="fa-solid fa-heart text-white/60 text-xs" />}
+        <span className="text-xs text-white/30 tabular-nums">{track.duration ? formatTime(track.duration) : "--:--"}</span>
         <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
           <i className={`fa-solid ${isActive && isPlaying ? "fa-pause" : "fa-play"} text-[10px] ${isActive && isPlaying ? "" : "ml-0.5"}`} />
         </div>
@@ -243,12 +243,12 @@ export default function LibraryPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-              <i className="fa-solid fa-books text-emerald-400 text-sm" />
+              <i className="fa-solid fa-books text-white text-sm" />
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Library</h1>
           </div>
         </div>
-        <p className="text-emerald-400/40 text-sm ml-11">{currentCount} item{currentCount !== 1 ? "s" : ""}</p>
+        <p className="text-white/40 text-sm ml-11">{currentCount} item{currentCount !== 1 ? "s" : ""}</p>
       </motion.div>
 
       {/* Tab bar */}
@@ -259,7 +259,7 @@ export default function LibraryPage() {
             onClick={() => setActiveTab(tab.key)}
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all",
-              activeTab === tab.key ? "bg-white text-black shadow-lg" : "text-emerald-400/40 hover:text-emerald-400/70"
+              activeTab === tab.key ? "bg-white text-black shadow-lg" : "text-white/40 hover:text-white/70"
             )}
           >
             <i className={`fa-solid ${tab.icon} text-xs`} />
@@ -271,16 +271,16 @@ export default function LibraryPage() {
       {/* Search + Controls */}
       <div className="flex items-center gap-2 mb-5">
         <div className="relative flex-1 max-w-md">
-          <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-400/25 text-xs" />
+          <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 text-xs" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={`Search ${activeTab}...`}
-            className="w-full h-10 pl-9 pr-4 rounded-xl bg-white/5 border border-white/10 text-emerald-400 text-sm placeholder:text-emerald-400/25 focus:outline-none focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-500/10 transition-all"
+            className="w-full h-10 pl-9 pr-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-500/10 transition-all"
           />
           {search && (
-            <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-400/20 hover:text-emerald-400/50">
+            <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50">
               <i className="fa-solid fa-xmark text-xs" />
             </button>
           )}
@@ -290,7 +290,7 @@ export default function LibraryPage() {
         <div className="relative">
           <button
             onClick={() => setShowSort(!showSort)}
-            className="flex items-center gap-2 px-3.5 h-10 rounded-xl bg-white/5 border border-white/10 text-xs text-emerald-400/50 hover:text-emerald-400 hover:border-white/20 transition-all"
+            className="flex items-center gap-2 px-3.5 h-10 rounded-xl bg-white/5 border border-white/10 text-xs text-white/50 hover:text-white hover:border-white/20 transition-all"
           >
             <i className="fa-solid fa-arrow-down-wide-short text-xs" />
             <span className="hidden sm:inline">{SORT_OPTIONS.find((o) => o.key === sortKey)?.label}</span>
@@ -309,7 +309,7 @@ export default function LibraryPage() {
                     onClick={() => { setSortKey(opt.key); setShowSort(false) }}
                     className={cn(
                       "block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
-                      sortKey === opt.key ? "bg-emerald-500/15 text-emerald-400" : "text-emerald-400/60 hover:bg-white/5 hover:text-emerald-400"
+                      sortKey === opt.key ? "bg-emerald-500/15 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
                     )}
                   >
                     {opt.label}
@@ -324,13 +324,13 @@ export default function LibraryPage() {
         <div className="flex rounded-xl bg-white/5 border border-white/10 overflow-hidden">
           <button
             onClick={() => setViewMode("grid")}
-            className={cn("p-2.5 transition-colors", viewMode === "grid" ? "bg-white/10 text-emerald-400" : "text-emerald-400/30 hover:text-emerald-400/60")}
+            className={cn("p-2.5 transition-colors", viewMode === "grid" ? "bg-white/10 text-white" : "text-white/30 hover:text-white/60")}
           >
             <i className="fa-solid fa-grid-2 text-sm" />
           </button>
           <button
             onClick={() => setViewMode("list")}
-            className={cn("p-2.5 transition-colors", viewMode === "list" ? "bg-white/10 text-emerald-400" : "text-emerald-400/30 hover:text-emerald-400/60")}
+            className={cn("p-2.5 transition-colors", viewMode === "list" ? "bg-white/10 text-white" : "text-white/30 hover:text-white/60")}
           >
             <i className="fa-solid fa-list text-sm" />
           </button>
@@ -382,7 +382,7 @@ export default function LibraryPage() {
                 </div>
               ) : (
                 <div className="space-y-0.5">
-                  <div className="grid grid-cols-[1fr_auto] gap-3 px-3 pb-2 mb-1 border-b border-white/[0.06] text-xs text-emerald-400/30 uppercase tracking-wider font-semibold">
+                  <div className="grid grid-cols-[1fr_auto] gap-3 px-3 pb-2 mb-1 border-b border-white/[0.06] text-xs text-white/30 uppercase tracking-wider font-semibold">
                     <span>Title</span>
                     <span className="flex items-center gap-6">
                       <span className="w-6" />
@@ -426,7 +426,7 @@ export default function LibraryPage() {
                 </div>
               ) : (
                 <div className="space-y-0.5">
-                  <div className="grid grid-cols-[1fr_auto] gap-3 px-3 pb-2 mb-1 border-b border-white/[0.06] text-xs text-emerald-400/30 uppercase tracking-wider font-semibold">
+                  <div className="grid grid-cols-[1fr_auto] gap-3 px-3 pb-2 mb-1 border-b border-white/[0.06] text-xs text-white/30 uppercase tracking-wider font-semibold">
                     <span>Title</span>
                     <span className="flex items-center gap-6">
                       <span className="w-6" />
@@ -470,7 +470,7 @@ export default function LibraryPage() {
                 </div>
               ) : (
                 <div className="space-y-0.5">
-                  <div className="grid grid-cols-[1fr_auto] gap-3 px-3 pb-2 mb-1 border-b border-white/[0.06] text-xs text-emerald-400/30 uppercase tracking-wider font-semibold">
+                  <div className="grid grid-cols-[1fr_auto] gap-3 px-3 pb-2 mb-1 border-b border-white/[0.06] text-xs text-white/30 uppercase tracking-wider font-semibold">
                     <span>Title</span>
                     <span className="flex items-center gap-6">
                       <span className="w-6" />

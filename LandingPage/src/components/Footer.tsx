@@ -37,7 +37,7 @@ export default function Footer() {
           <div className="col-span-2 lg:col-span-2">
             <a href="#home" className="flex items-center gap-3 mb-6">
               <img 
-                src="/assets/images/appicon.png" 
+                src="https://res.cloudinary.com/dcidrwk1e/image/upload/q_auto/f_auto/v1779859113/file_000000009a1871fa93688d58eab7a8b7_dnwrpa.png" 
                 alt="HalalTune" 
                 className="w-10 h-10 rounded-xl" 
               />

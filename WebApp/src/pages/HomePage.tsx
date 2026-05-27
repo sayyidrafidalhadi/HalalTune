@@ -143,7 +143,7 @@ function TrackCard({
         className={cn(
           "font-semibold truncate leading-tight",
           dense ? "text-sm" : "text-sm",
-          isActive ? "text-emerald-400" : "text-white"
+          isActive ? "text-white" : "text-white"
         )}
       >
         {track.title}
@@ -293,7 +293,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.5 }}
-              className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400 mb-3"
+              className="text-xs font-semibold uppercase tracking-[0.2em] text-white mb-3"
             >
               {timeOfDay()} Listening
             </motion.p>
@@ -470,7 +470,7 @@ export default function HomePage() {
                     onPlay={() => handlePlay(track)}
                   />
                   <div className="flex items-center gap-1.5 mt-1 px-0.5">
-                    <i className="fa-solid fa-fire text-[10px] text-emerald-400/60" />
+                    <i className="fa-solid fa-fire text-[10px] text-white/60" />
                     <span className="text-[10px] text-white/30 font-medium">
                       {track.streamCount || 0} plays
                     </span>
@@ -506,7 +506,7 @@ export default function HomePage() {
                 </div>
                 <div className="relative z-10 h-full flex flex-col justify-between">
                   <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
-                    <i className="fa-solid fa-book-quran text-emerald-400 text-sm" />
+                    <i className="fa-solid fa-book-quran text-white text-sm" />
                   </div>
                   <div>
                     <p className="font-bold text-white text-sm mb-0.5">{item.name}</p>
@@ -625,7 +625,7 @@ export default function HomePage() {
                     <p
                       className={cn(
                         "text-xs font-semibold truncate",
-                        active ? "text-emerald-400" : "text-white"
+                        active ? "text-white" : "text-white"
                       )}
                     >
                       {track.title}

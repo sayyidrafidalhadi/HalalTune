@@ -31,7 +31,7 @@ function highlightMatch(text: string, query: string) {
   const parts = text.split(new RegExp(`(${escaped})`, "gi"))
   return parts.map((part, i) =>
     part.toLowerCase() === query.toLowerCase() ? (
-      <span key={i} className="text-emerald-400">{part}</span>
+      <span key={i} className="text-white">{part}</span>
     ) : (
       part
     )
@@ -87,7 +87,7 @@ function TrackCard({ track, index, isActive, isPlaying, query, onPlay }: TrackCa
         {track.coverArt ? (
           <img src={track.coverArt} alt="" className="w-full h-full object-cover" />
         ) : (
-          <i className="fa-solid fa-music text-emerald-400/30 text-lg" />
+          <i className="fa-solid fa-music text-white/30 text-lg" />
         )}
         <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
           <div className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center">
@@ -96,19 +96,19 @@ function TrackCard({ track, index, isActive, isPlaying, query, onPlay }: TrackCa
         </div>
       </div>
       <div className="flex-1 min-w-0">
-        <p className={cn("text-sm font-medium truncate", isActive ? "text-emerald-400" : "text-emerald-400")}>
+        <p className={cn("text-sm font-medium truncate", isActive ? "text-white" : "text-white")}>
           {highlightMatch(track.title, query)}
         </p>
-        <p className="text-xs text-emerald-400/40 truncate mt-0.5">
+        <p className="text-xs text-white/40 truncate mt-0.5">
           {highlightMatch(track.artist, query)} {track.duration ? `· ${formatTime(track.duration)}` : ""}
         </p>
       </div>
       {track.streamCount && (
-        <span className="text-[10px] text-emerald-400/20 hidden md:block">{track.streamCount.toLocaleString()} streams</span>
+        <span className="text-[10px] text-white/20 hidden md:block">{track.streamCount.toLocaleString()} streams</span>
       )}
       <button
         onClick={(e) => { e.stopPropagation(); onPlay(track) }}
-        className="md:hidden w-8 h-8 rounded-full bg-white/10 text-emerald-400 flex items-center justify-center"
+        className="md:hidden w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center"
       >
         <i className={`fa-solid ${isActive && isPlaying ? "fa-pause" : "fa-play"} text-xs ${isActive && isPlaying ? "" : "ml-0.5"}`} />
       </button>
@@ -134,10 +134,10 @@ function ArtistCard({ name, count, index, query, onSelect }: ArtistCardProps) {
       className="group flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] cursor-pointer transition-all"
     >
       <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 flex items-center justify-center mb-1 group-hover:scale-105 transition-transform shadow-lg">
-        <i className="fa-solid fa-user text-2xl text-emerald-400/60" />
+        <i className="fa-solid fa-user text-2xl text-white/60" />
       </div>
       <p className="text-sm font-medium text-center truncate w-full">{highlightMatch(name, query)}</p>
-      <p className="text-xs text-emerald-400/40">{count} tracks</p>
+      <p className="text-xs text-white/40">{count} tracks</p>
     </motion.div>
   )
 }
@@ -235,7 +235,7 @@ export default function SearchPage() {
               isFocused && "opacity-100"
             )} />
             <div className="relative flex items-center">
-              <i className="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-emerald-400/30 text-lg z-10" />
+              <i className="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-white/30 text-lg z-10" />
               <input
                 ref={inputRef}
                 type="text"
@@ -244,7 +244,7 @@ export default function SearchPage() {
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 placeholder="What do you want to listen to?"
-                className="w-full h-14 pl-12 pr-12 rounded-2xl bg-white/5 border border-white/10 text-emerald-400 placeholder:text-emerald-400/25 focus:outline-none focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10 transition-all text-base"
+                className="w-full h-14 pl-12 pr-12 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 focus:outline-none focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10 transition-all text-base"
               />
               <AnimatePresence>
                 {query && (
@@ -253,7 +253,7 @@ export default function SearchPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     onClick={() => setQuery("")}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-400/30 hover:text-emerald-400/70 p-1"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 p-1"
                   >
                     <i className="fa-solid fa-xmark text-lg" />
                   </motion.button>
@@ -286,7 +286,7 @@ export default function SearchPage() {
                     "px-5 py-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all shrink-0",
                     !activeCategory
                       ? "bg-white text-black shadow-lg"
-                      : "bg-white/5 text-emerald-400/60 hover:bg-white/10 border border-white/5"
+                      : "bg-white/5 text-white/60 hover:bg-white/10 border border-white/5"
                   )}
                 >
                   All
@@ -299,7 +299,7 @@ export default function SearchPage() {
                       "px-5 py-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all shrink-0 border",
                       activeCategory === cat.key
                         ? "bg-white text-black border-white shadow-lg"
-                        : "bg-white/5 text-emerald-400/60 hover:bg-white/10 border-white/5"
+                        : "bg-white/5 text-white/60 hover:bg-white/10 border-white/5"
                     )}
                   >
                     {cat.label}
@@ -309,7 +309,7 @@ export default function SearchPage() {
 
               {/* Trending searches */}
               <section>
-                <h2 className="text-sm font-bold text-emerald-400/50 uppercase tracking-widest mb-3">Trending Searches</h2>
+                <h2 className="text-sm font-bold text-white/50 uppercase tracking-widest mb-3">Trending Searches</h2>
                 <div className="flex flex-wrap gap-2">
                   {trending.map((term, i) => (
                     <motion.button
@@ -318,7 +318,7 @@ export default function SearchPage() {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.15 + i * 0.03, duration: 0.3, ease: easings }}
                       onClick={() => setQuery(term)}
-                      className="px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.06] text-sm text-emerald-400/60 hover:text-emerald-400 hover:bg-white/[0.08] hover:border-white/[0.12] transition-all"
+                      className="px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.06] text-sm text-white/60 hover:text-white hover:bg-white/[0.08] hover:border-white/[0.12] transition-all"
                     >
                       {term}
                     </motion.button>
@@ -328,7 +328,7 @@ export default function SearchPage() {
 
               {/* Browse all - category cards */}
               <section>
-                <h2 className="text-sm font-bold text-emerald-400/50 uppercase tracking-widest mb-3">Browse All</h2>
+                <h2 className="text-sm font-bold text-white/50 uppercase tracking-widest mb-3">Browse All</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                   {BROWSE_CARDS.map((card, i) => (
                     <motion.button
@@ -350,9 +350,9 @@ export default function SearchPage() {
                         card.gradient
                       )}
                     >
-                      <span className="relative z-10 text-sm font-bold text-emerald-400 drop-shadow-lg">{card.label}</span>
+                      <span className="relative z-10 text-sm font-bold text-white drop-shadow-lg">{card.label}</span>
                       <i className={cn(
-                        "fa-solid absolute -bottom-2 -right-2 text-5xl text-emerald-400/10 group-hover:text-emerald-400/20 transition-all group-hover:scale-110",
+                        "fa-solid absolute -bottom-2 -right-2 text-5xl text-white/10 group-hover:text-white/20 transition-all group-hover:scale-110",
                         card.icon
                       )} />
                     </motion.button>
@@ -363,7 +363,7 @@ export default function SearchPage() {
               {/* Recently played */}
               {historyList.length > 0 && (
                 <section>
-                  <h2 className="text-sm font-bold text-emerald-400/50 uppercase tracking-widest mb-3">Recent Searches</h2>
+                  <h2 className="text-sm font-bold text-white/50 uppercase tracking-widest mb-3">Recent Searches</h2>
                   <div className="flex flex-wrap gap-2">
                     {historyList.slice(0, 6).map((entry, i) => {
                       const t = tracks.find((tr) => tr.id === entry.id)
@@ -375,7 +375,7 @@ export default function SearchPage() {
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 0.2 + i * 0.03, duration: 0.3, ease: easings }}
                           onClick={() => handlePlayTrack(t)}
-                          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-emerald-400/50 hover:text-emerald-400 hover:bg-white/[0.06] transition-all"
+                          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-white/50 hover:text-white hover:bg-white/[0.06] transition-all"
                         >
                           <i className="fa-solid fa-clock-rotate-left text-[10px]" />
                           <span className="truncate max-w-[120px]">{t.title}</span>
@@ -413,7 +413,7 @@ export default function SearchPage() {
                       "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all",
                       activeTab === tab.key
                         ? "bg-white text-black shadow-lg"
-                        : "text-emerald-400/40 hover:text-emerald-400/70"
+                        : "text-white/40 hover:text-white/70"
                     )}
                   >
                     <i className={`fa-solid ${tab.icon}`} />
@@ -438,7 +438,7 @@ export default function SearchPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, ease: easings }}
                     >
-                      <h2 className="text-xs font-bold text-emerald-400/50 uppercase tracking-widest mb-3">Top Result</h2>
+                      <h2 className="text-xs font-bold text-white/50 uppercase tracking-widest mb-3">Top Result</h2>
                       <motion.div
                         whileHover={{ scale: 1.01, y: -2 }}
                         whileTap={{ scale: 0.99 }}
@@ -459,14 +459,14 @@ export default function SearchPage() {
                             {topResult.coverArt ? (
                               <img src={topResult.coverArt} alt="" className="w-full h-full object-cover" />
                             ) : (
-                              <i className="fa-solid fa-music text-3xl text-emerald-400/40" />
+                              <i className="fa-solid fa-music text-3xl text-white/40" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <h3 className="text-xl md:text-2xl font-bold truncate">
                               {highlightMatch(topResult.title, debouncedQuery)}
                             </h3>
-                            <p className="text-sm text-emerald-400/50 mt-1 truncate">
+                            <p className="text-sm text-white/50 mt-1 truncate">
                               {highlightMatch(topResult.artist, debouncedQuery)}
                             </p>
                             <div className="flex items-center gap-3 mt-3">
@@ -479,7 +479,7 @@ export default function SearchPage() {
                               </button>
                               <button
                                 onClick={(e) => { e.stopPropagation() }}
-                                className="p-2 rounded-full bg-white/10 text-emerald-400/60 hover:text-emerald-400 hover:bg-white/20 transition-all"
+                                className="p-2 rounded-full bg-white/10 text-white/60 hover:text-white hover:bg-white/20 transition-all"
                               >
                                 <i className="fa-regular fa-heart" />
                               </button>
@@ -496,7 +496,7 @@ export default function SearchPage() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       onClick={handlePlayAll}
-                      className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-emerald-400/60 hover:text-emerald-400 hover:bg-white/10 transition-all"
+                      className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-white/60 hover:text-white hover:bg-white/10 transition-all"
                     >
                       <i className="fa-solid fa-play text-xs" />
                       Play All ({filteredByQuery.length} tracks)
@@ -559,11 +559,11 @@ export default function SearchPage() {
                             {playlist.coverArt ? (
                               <img src={playlist.coverArt} alt="" className="w-full h-full object-cover" />
                             ) : (
-                              <i className="fa-solid fa-list text-3xl text-emerald-400/30" />
+                              <i className="fa-solid fa-list text-3xl text-white/30" />
                             )}
                           </div>
                           <p className="text-sm font-medium truncate">{highlightMatch(playlist.name, debouncedQuery)}</p>
-                          <p className="text-xs text-emerald-400/40 truncate mt-0.5">
+                          <p className="text-xs text-white/40 truncate mt-0.5">
                             {playlist.description || `${playlist.trackIds?.length || 0} tracks`}
                           </p>
                         </motion.div>

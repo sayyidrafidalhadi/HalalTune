@@ -78,7 +78,7 @@ export default function AlbumPage() {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className={cn("text-sm truncate", isActive ? "text-emerald-400" : "text-white")}>
+                <p className={cn("text-sm truncate", isActive ? "text-white" : "text-white")}>
                   {track.title}
                 </p>
                 <p className="text-xs text-white/40 truncate">{track.artist}</p>
