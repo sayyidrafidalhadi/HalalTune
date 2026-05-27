@@ -15,14 +15,6 @@ export async function setAuthPersistence(mode: AuthMode): Promise<void> {
   localStorage.setItem("halaltune_auth_persistence", mode)
 }
 
-export async function loginWithSpotify(): Promise<void> {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "spotify",
-    options: { redirectTo: `${window.location.origin}/auth` },
-  })
-  if (error) throw error
-}
-
 export async function loginWithEmail(email: string, password: string): Promise<User> {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) throw error
