@@ -3,7 +3,29 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Command } from 'lucide-react';
 import { useUIStore } from '@/store';
-import { SIDEBAR_ITEMS } from '@/lib/constants';
+import {
+  LayoutDashboard, Music, Mic2, Album, ListMusic,
+  Podcast, Flag, Users, Tags, BarChart3, Settings,
+} from 'lucide-react';
+
+const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
+  LayoutDashboard, Music, Mic2, Album, ListMusic,
+  Podcast, Flag, Users, Tags, BarChart3, Settings,
+};
+
+const items = [
+  { label: 'Dashboard', path: '/admin', icon: 'LayoutDashboard' },
+  { label: 'Tracks', path: '/admin/tracks', icon: 'Music' },
+  { label: 'Artists', path: '/admin/artists', icon: 'Mic2' },
+  { label: 'Albums', path: '/admin/albums', icon: 'Album' },
+  { label: 'Playlists', path: '/admin/playlists', icon: 'ListMusic' },
+  { label: 'Podcasts', path: '/admin/podcasts', icon: 'Podcast' },
+  { label: 'Reports', path: '/admin/reports', icon: 'Flag' },
+  { label: 'Users', path: '/admin/users', icon: 'Users' },
+  { label: 'Categories', path: '/admin/categories', icon: 'Tags' },
+  { label: 'Analytics', path: '/admin/analytics', icon: 'BarChart3' },
+  { label: 'Settings', path: '/admin/settings', icon: 'Settings' },
+];
 
 export function CommandPalette() {
   const { commandPaletteOpen, setCommandPaletteOpen } = useUIStore();
@@ -11,7 +33,7 @@ export function CommandPalette() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const navigate = useNavigate();
 
-  const filtered = SIDEBAR_ITEMS.filter((item) =>
+  const filtered = items.filter((item) =>
     item.label.toLowerCase().includes(query.toLowerCase())
   );
 
@@ -81,20 +103,23 @@ export function CommandPalette() {
               </kbd>
             </div>
             <div className="p-2 max-h-72 overflow-y-auto">
-              {filtered.map((item, i) => (
-                <button
-                  key={item.path}
-                  onClick={() => handleSelect(item.path)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                    i === selectedIndex
-                      ? 'bg-emerald/10 text-emerald'
-                      : 'text-text-secondary hover:bg-surface-hover hover:text-white'
-                  }`}
-                >
-                  <item.icon size={16} />
-                  <span>{item.label}</span>
-                </button>
-              ))}
+              {filtered.map((item, i) => {
+                const Icon = iconMap[item.icon];
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => handleSelect(item.path)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                      i === selectedIndex
+                        ? 'bg-emerald/10 text-emerald'
+                        : 'text-text-secondary hover:bg-surface-hover hover:text-white'
+                    }`}
+                  >
+                    {Icon && <Icon size={16} />}
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
               {filtered.length === 0 && (
                 <p className="px-3 py-8 text-center text-text-secondary text-sm">No results found</p>
               )}

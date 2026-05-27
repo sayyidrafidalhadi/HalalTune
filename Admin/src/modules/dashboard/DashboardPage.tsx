@@ -7,19 +7,15 @@ import { StatCard } from '@/components/ui';
 import { useDashboardStats, useTopTracks, useTopArtists } from '@/hooks';
 import { formatNumber } from '@/lib/utils';
 
-const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
-  Users, Music, Mic2, Disc3, ListMusic, Podcast, Flag, Headphones,
-};
-
 const statConfig = [
-  { key: 'total_users', icon: 'Users', label: 'Total Users' },
-  { key: 'active_listeners', icon: 'Headphones', label: 'Active Listeners' },
-  { key: 'streams_today', icon: 'TrendingUp', label: 'Streams Today' },
-  { key: 'total_tracks', icon: 'Music', label: 'Total Tracks' },
-  { key: 'total_artists', icon: 'Mic2', label: 'Total Artists' },
-  { key: 'total_albums', icon: 'Disc3', label: 'Total Albums' },
-  { key: 'total_playlists', icon: 'ListMusic', label: 'Total Playlists' },
-  { key: 'pending_reports', icon: 'Flag', label: 'Pending Reports' },
+  { key: 'total_users', icon: Users, label: 'Total Users' },
+  { key: 'active_listeners', icon: Headphones, label: 'Active Listeners' },
+  { key: 'streams_today', icon: TrendingUp, label: 'Streams Today' },
+  { key: 'total_tracks', icon: Music, label: 'Total Tracks' },
+  { key: 'total_artists', icon: Mic2, label: 'Total Artists' },
+  { key: 'total_albums', icon: Disc3, label: 'Total Albums' },
+  { key: 'total_playlists', icon: ListMusic, label: 'Total Playlists' },
+  { key: 'pending_reports', icon: Flag, label: 'Pending Reports' },
 ];
 
 export function DashboardPage() {
@@ -34,7 +30,7 @@ export function DashboardPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statConfig.map((cfg, i) => {
-          const Icon = iconMap[cfg.icon as keyof typeof iconMap] || BarChart3;
+          const val = stats?.[cfg.key as keyof typeof stats] ?? 0;
           return (
             <motion.div
               key={cfg.key}
@@ -44,8 +40,8 @@ export function DashboardPage() {
             >
               <StatCard
                 title={cfg.label}
-                value={isLoading ? '...' : formatNumber((stats as Record<string, number>)?.[cfg.key] ?? 0)}
-                icon={Icon as React.ComponentType<{ size?: number }>}
+                value={isLoading ? '...' : formatNumber(val)}
+                icon={cfg.icon}
               />
             </motion.div>
           );
