@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { useAuthStore } from "@/store/authStore"
 import { loginWithGoogle, loginWithEmail, registerWithEmail, resetPassword } from "@/services/authService"
+import { APP_ICON } from "@/lib/constants"
 
 type AuthView = "login" | "register" | "forgot"
 
@@ -100,7 +101,7 @@ export default function AuthPage() {
         className="w-full max-w-sm space-y-6"
       >
         <div className="text-center space-y-2">
-          <img src="/icon.png" alt="HalalTune" className="w-14 h-14 rounded-2xl mx-auto mb-2 shadow-xl" />
+          <img src={APP_ICON} alt="HalalTune" className="w-14 h-14 rounded-2xl mx-auto mb-2 shadow-xl" />
           <h1 className="text-2xl font-bold">{viewTitle}</h1>
           <p className="text-sm text-white/50">{viewDesc}</p>
         </div>

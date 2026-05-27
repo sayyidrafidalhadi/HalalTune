@@ -2,6 +2,7 @@ import { motion } from "framer-motion"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/store/authStore"
 import { cn } from "@/lib/utils"
+import { APP_ICON } from "@/lib/constants"
 import { logout } from "@/services/authService"
 
 const navItems = [
@@ -33,7 +34,7 @@ export default function Sidebar() {
   return (
     <aside className="hidden md:flex flex-col w-sidebar bg-black border-r border-white/10 shrink-0 h-full">
       <div className="flex items-center gap-3 px-4 pt-6 pb-8">
-        <img src="/icon.png" alt="HalalTune" className="w-8 h-8 shrink-0 rounded-lg" />
+        <img src={APP_ICON} alt="HalalTune" className="w-8 h-8 shrink-0 rounded-lg" />
         <h2 className="text-xl font-extrabold tracking-tight">HalalTune</h2>
       </div>
 

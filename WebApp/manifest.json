@@ -10,25 +10,13 @@
   "categories": ["music", "religion", "entertainment"],
   "icons": [
     {
-      "src": "icon.png",
+      "src": "https://res.cloudinary.com/dcidrwk1e/image/upload/q_auto/f_auto/v1779859113/file_000000009a1871fa93688d58eab7a8b7_dnwrpa.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "appicon.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "appicon.png",
+      "src": "https://res.cloudinary.com/dcidrwk1e/image/upload/q_auto/f_auto/v1779859113/file_000000009a1871fa93688d58eab7a8b7_dnwrpa.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

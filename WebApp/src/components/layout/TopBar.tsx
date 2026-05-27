@@ -2,6 +2,7 @@ import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/store/authStore"
 import { Button } from "@/components/ui/button"
+import { APP_ICON } from "@/lib/constants"
 
 export default function TopBar() {
   const navigate = useNavigate()
@@ -10,7 +11,7 @@ export default function TopBar() {
   return (
     <header className="flex items-center justify-between px-4 md:px-8 py-3 bg-black/70 backdrop-blur-xl border-b border-white/5 shrink-0 z-10">
       <div className="flex items-center gap-3 md:hidden">
-        <img src="/icon.png" alt="HalalTune" className="w-7 h-7 shrink-0 rounded-lg" />
+        <img src={APP_ICON} alt="HalalTune" className="w-7 h-7 shrink-0 rounded-lg" />
         <span className="text-lg font-bold">HalalTune</span>
       </div>
 

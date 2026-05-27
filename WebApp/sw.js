@@ -4,9 +4,6 @@ const DL_CACHE    = 'halaltune-downloads-v1';
 const ASSETS = [
   '/',
   '/index.html',
-  '/icon.png',
-  '/appicon.png',
-  '/appleicon.png',
   '/manifest.json',
 ];
 
