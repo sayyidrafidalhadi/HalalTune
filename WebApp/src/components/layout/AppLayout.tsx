@@ -16,7 +16,7 @@ export default function AppLayout() {
   const hasTrack = !!currentTrack()
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-black text-white">
+    <div className="flex h-screen w-screen overflow-hidden bg-gradient-to-b from-black via-black to-white/[0.03] text-white">
       <AudioEngine />
       <Sidebar />
 
