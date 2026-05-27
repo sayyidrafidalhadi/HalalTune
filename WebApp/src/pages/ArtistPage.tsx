@@ -32,7 +32,7 @@ export default function ArtistPage() {
         transition={{ duration: 0.4 }}
         className="flex items-end gap-6"
       >
-        <div className="w-48 h-48 rounded-full shrink-0 bg-gradient-to-br from-emerald-900/30 to-black flex items-center justify-center overflow-hidden shadow-lg border-2 border-white/10">
+        <div className="w-48 h-48 rounded-full shrink-0 bg-gradient-to-br from-white/30 to-black flex items-center justify-center overflow-hidden shadow-lg border-2 border-white/10">
           {artistTracks[0]?.coverArt ? (
             <img src={artistTracks[0].coverArt} alt="" className="w-full h-full object-cover" />
           ) : (

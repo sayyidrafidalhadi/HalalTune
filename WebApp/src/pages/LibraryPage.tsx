@@ -65,7 +65,7 @@ function PlaylistCard({ playlist, index }: { playlist: Playlist; index: number }
     >
       <div className={cn(
         "w-full aspect-square rounded-2xl overflow-hidden mb-2.5 relative shadow-lg",
-        playlist.coverArt ? "" : "bg-gradient-to-br from-emerald-600/20 via-emerald-800/10 to-black flex items-center justify-center"
+        playlist.coverArt ? "" : "bg-gradient-to-br from-white/20 via-white/10 to-black flex items-center justify-center"
       )}>
         {playlist.coverArt ? (
           <img src={playlist.coverArt} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />

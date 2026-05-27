@@ -58,7 +58,7 @@ function SurahCard({ surah, isBookmarked, onPlay, onToggleBookmark, index }: {
         <span>·</span>
         <span className={surah.revelation === "Meccan" ? "text-blue-400/60" : "text-amber-400/60"}>{surah.revelation}</span>
       </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
     </motion.div>
   )
 }
@@ -73,7 +73,7 @@ function ReciterCard({ reciter, index, onSelect }: { reciter: Reciter; index: nu
       onClick={onSelect}
       className="group p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-emerald-500/20 transition-all cursor-pointer text-center"
     >
-      <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-emerald-600/20 to-emerald-800/10 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform shadow-lg border border-white/5">
+      <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-white/20 to-white/10 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform shadow-lg border border-white/5">
         <i className="fa-solid fa-microphone text-2xl text-white/50" />
       </div>
       <p className="font-semibold text-sm truncate">{reciter.name}</p>
@@ -160,7 +160,7 @@ export default function QuranPage() {
             exit={{ opacity: 0, height: 0 }}
             className="mb-5 overflow-hidden"
           >
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-emerald-600/5 to-transparent border border-emerald-500/20">
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-white/10 via-white/5 to-transparent border border-emerald-500/20">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0">
                   <i className="fa-solid fa-play text-white text-sm ml-0.5" />

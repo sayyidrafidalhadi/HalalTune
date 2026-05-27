@@ -133,7 +133,7 @@ export default function PlaylistPage() {
               style={{ backgroundImage: `url(${playlist.coverArt})`, filter: "blur(60px) saturate(1.4)" }}
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-800/60 via-emerald-900/40 to-black" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-white/40 to-black" />
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/50 to-black" />
         </div>
@@ -149,7 +149,7 @@ export default function PlaylistPage() {
               className={cn(
                 "w-[200px] h-[200px] sm:w-[240px] sm:h-[240px] md:w-[300px] md:h-[300px] lg:w-[360px] lg:h-[360px] shrink-0 rounded-2xl overflow-hidden shadow-2xl mx-auto md:mx-0",
                 "border border-white/[0.06]",
-                playlist.coverArt ? "" : "bg-gradient-to-br from-emerald-600/30 via-emerald-800/20 to-black flex items-center justify-center"
+                playlist.coverArt ? "" : "bg-gradient-to-br from-white/30 via-white/20 to-black flex items-center justify-center"
               )}
             >
               {playlist.coverArt ? (

@@ -15,11 +15,11 @@ const TRENDING_SEARCHES = [
 ]
 
 const BROWSE_CARDS = [
-  { label: "Arabic Nasheeds", cat: "arabic", icon: "fa-star-and-crescent", gradient: "from-emerald-600 to-teal-800" },
+  { label: "Arabic Nasheeds", cat: "arabic", icon: "fa-star-and-crescent", gradient: "from-white to-teal-800" },
   { label: "Malayalam", cat: "malayalam", icon: "fa-language", gradient: "from-blue-600 to-indigo-800" },
   { label: "English", cat: "english", icon: "fa-globe", gradient: "from-purple-600 to-violet-800" },
   { label: "Urdu", cat: "urdu", icon: "fa-book-open", gradient: "from-amber-600 to-orange-800" },
-  { label: "Peaceful", cat: null, icon: "fa-spa", gradient: "from-teal-500 to-emerald-800" },
+  { label: "Peaceful", cat: null, icon: "fa-spa", gradient: "from-teal-500 to-white" },
   { label: "Spiritual", cat: null, icon: "fa-moon", gradient: "from-indigo-500 to-purple-800" },
 ]
 
@@ -133,7 +133,7 @@ function ArtistCard({ name, count, index, query, onSelect }: ArtistCardProps) {
       onClick={() => onSelect(name)}
       className="group flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] cursor-pointer transition-all"
     >
-      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 flex items-center justify-center mb-1 group-hover:scale-105 transition-transform shadow-lg">
+      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-white/20 to-white/10 flex items-center justify-center mb-1 group-hover:scale-105 transition-transform shadow-lg">
         <i className="fa-solid fa-user text-2xl text-white/60" />
       </div>
       <p className="text-sm font-medium text-center truncate w-full">{highlightMatch(name, query)}</p>
@@ -231,7 +231,7 @@ export default function SearchPage() {
           {/* Search Input */}
           <div className="relative max-w-2xl group">
             <div className={cn(
-              "absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-500/20 via-emerald-400/10 to-transparent opacity-0 transition-opacity duration-300",
+              "absolute inset-0 rounded-2xl bg-gradient-to-r from-white/20 via-white/10 to-transparent opacity-0 transition-opacity duration-300",
               isFocused && "opacity-100"
             )} />
             <div className="relative flex items-center">
@@ -445,16 +445,16 @@ export default function SearchPage() {
                         onClick={() => handlePlayTrack(topResult)}
                         className={cn(
                           "relative p-5 rounded-2xl overflow-hidden cursor-pointer group",
-                          "bg-gradient-to-br from-emerald-500/15 via-emerald-600/5 to-transparent",
+                          "bg-gradient-to-br from-white/15 via-white/5 to-transparent",
                           "border border-emerald-500/20",
-                          "hover:from-emerald-500/20 hover:via-emerald-600/8 hover:to-transparent",
+                          "hover:from-white/20 hover:via-white/8 hover:to-transparent",
                           "transition-all"
                         )}
                       >
                         <div className="flex items-center gap-5">
                           <div className={cn(
                             "w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden shadow-2xl shrink-0",
-                            topResult.coverArt ? "" : "bg-gradient-to-br from-emerald-600/30 to-emerald-800/20 flex items-center justify-center"
+                            topResult.coverArt ? "" : "bg-gradient-to-br from-white/30 to-white/20 flex items-center justify-center"
                           )}>
                             {topResult.coverArt ? (
                               <img src={topResult.coverArt} alt="" className="w-full h-full object-cover" />
@@ -554,7 +554,7 @@ export default function SearchPage() {
                         >
                           <div className={cn(
                             "w-full aspect-square rounded-xl overflow-hidden mb-3 shadow-lg",
-                            playlist.coverArt ? "" : "bg-gradient-to-br from-emerald-600/20 to-emerald-800/10 flex items-center justify-center"
+                            playlist.coverArt ? "" : "bg-gradient-to-br from-white/20 to-white/10 flex items-center justify-center"
                           )}>
                             {playlist.coverArt ? (
                               <img src={playlist.coverArt} alt="" className="w-full h-full object-cover" />

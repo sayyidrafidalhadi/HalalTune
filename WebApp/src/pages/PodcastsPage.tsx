@@ -12,7 +12,7 @@ const podcasts = [
     title: "Seerah Stories",
     host: "Yasir Qadhi",
     episodes: 28,
-    color: "from-emerald-900/30 to-black",
+    color: "from-white/30 to-black",
   },
   {
     title: "Faith & Reflection",

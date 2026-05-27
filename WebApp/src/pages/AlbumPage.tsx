@@ -38,7 +38,7 @@ export default function AlbumPage() {
       >
         <div className={cn(
           "w-48 h-48 rounded-2xl shrink-0 flex items-center justify-center overflow-hidden shadow-lg",
-          coverArt ? "" : "bg-gradient-to-br from-emerald-900/30 to-black"
+          coverArt ? "" : "bg-gradient-to-br from-white/30 to-black"
         )}>
           {coverArt ? (
             <img src={coverArt} alt="" className="w-full h-full object-cover" />

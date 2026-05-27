@@ -10,7 +10,7 @@ import { easings } from "@/lib/easings"
 import type { Track } from "@/types"
 
 const MOODS = [
-  { label: "Peaceful", icon: "fa-spa", gradient: "from-emerald-500 to-teal-700" },
+  { label: "Peaceful", icon: "fa-spa", gradient: "from-white to-teal-700" },
   { label: "Focus", icon: "fa-brain", gradient: "from-blue-600 to-indigo-800" },
   { label: "Spiritual", icon: "fa-moon", gradient: "from-purple-600 to-violet-900" },
   { label: "Energetic", icon: "fa-bolt", gradient: "from-amber-500 to-orange-700" },
@@ -19,7 +19,7 @@ const MOODS = [
 ]
 
 const QURAN_PICKS = [
-  { name: "Surah Yaseen", reciter: "Mishary Rashid", verses: 83, gradient: "from-emerald-900/60 to-black" },
+  { name: "Surah Yaseen", reciter: "Mishary Rashid", verses: 83, gradient: "from-white/60 to-black" },
   { name: "Surah Ar-Rahman", reciter: "Abdul Rahman Al-Sudais", verses: 78, gradient: "from-blue-900/60 to-black" },
   { name: "Surah Al-Kahf", reciter: "Saad Al-Ghamidi", verses: 110, gradient: "from-purple-900/60 to-black" },
   { name: "Surah Maryam", reciter: "Yasser Al-Dosari", verses: 98, gradient: "from-amber-900/60 to-black" },
@@ -100,7 +100,7 @@ function TrackCard({
             className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-emerald-900/40 via-black to-black flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-white/40 via-black to-black flex items-center justify-center">
             <i className="fa-solid fa-music text-4xl text-white/15" />
           </div>
         )}
@@ -221,7 +221,7 @@ const timeOfDay = () => {
 const heroGradient = () => {
   const h = new Date().getHours()
   if (h < 6) return "from-indigo-950 via-black to-black"
-  if (h < 12) return "from-emerald-950 via-black to-black"
+  if (h < 12) return "from-white via-black to-black"
   if (h < 17) return "from-amber-950 via-black to-black"
   if (h < 21) return "from-orange-950 via-black to-black"
   return "from-slate-950 via-black to-black"
@@ -306,7 +306,7 @@ export default function HomePage() {
             >
               Discover
               <br />
-              <span className="bg-gradient-to-r from-emerald-300 via-emerald-400 to-emerald-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-white via-white to-white bg-clip-text text-transparent">
                 Halal Audio
               </span>
             </motion.h1>
@@ -388,7 +388,7 @@ export default function HomePage() {
                       className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-emerald-900/30 via-black to-black flex items-center justify-center">
+                    <div className="w-full h-full bg-gradient-to-br from-white/30 via-black to-black flex items-center justify-center">
                       <i className="fa-solid fa-music text-3xl text-white/15" />
                     </div>
                   )}
@@ -604,7 +604,7 @@ export default function HomePage() {
                         className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-emerald-900/30 via-black to-black flex items-center justify-center">
+                      <div className="w-full h-full bg-gradient-to-br from-white/30 via-black to-black flex items-center justify-center">
                         <i className="fa-solid fa-music text-3xl text-white/15" />
                       </div>
                     )}
