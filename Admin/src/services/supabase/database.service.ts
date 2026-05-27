@@ -5,24 +5,30 @@ import type {
   TopArtist, RetentionMetric, StreamMetric,
 } from '@/types';
 
+function mapUser(data: Record<string, unknown>): Profile {
+  return { id: data.uid as string, ...data } as unknown as Profile;
+}
+
 export const db = {
   // Users
   async getUsers() {
     const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
     if (error) throw error;
-    return data as Profile[];
+    return (data || []).map(mapUser);
   },
 
   async getUser(id: string) {
-    const { data, error } = await supabase.from('users').select('*').eq('id', id).single();
+    const { data, error } = await supabase.from('users').select('*').eq('uid', id).single();
     if (error) throw error;
-    return data as Profile;
+    if (!data) throw new Error('User not found');
+    return mapUser(data);
   },
 
   async updateUser(id: string, updates: Partial<Profile>) {
-    const { data, error } = await supabase.from('users').update(updates).eq('id', id).select().single();
+    const { data, error } = await supabase.from('users').update(updates).eq('uid', id).select().single();
     if (error) throw error;
-    return data as Profile;
+    if (!data) throw new Error('User not found');
+    return mapUser(data);
   },
 
   // Tracks

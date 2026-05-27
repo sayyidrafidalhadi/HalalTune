@@ -1,6 +1,10 @@
 import { supabase } from '../supabase';
 import type { Profile, UserRole } from '@/types';
 
+function mapUser(data: Record<string, unknown>): Profile {
+  return { id: data.uid as string, ...data } as unknown as Profile;
+}
+
 export const authService = {
   async signIn(email: string, password: string) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -29,10 +33,11 @@ export const authService = {
     const { data, error } = await supabase
       .from('users')
       .select('*')
-      .eq('id', userId)
+      .eq('uid', userId)
       .single();
     if (error) throw error;
-    return data;
+    if (!data) return null;
+    return mapUser(data);
   },
 
   async hasRole(userId: string, allowedRoles: UserRole[]): Promise<boolean> {
