@@ -28,14 +28,19 @@ export async function uploadFile(file: File, resourceType: "image" | "video" = "
   const formData = new FormData()
   formData.append("file", file)
   formData.append("upload_preset", UPLOAD_PRESET)
-  formData.append("resource_type", resourceType)
 
   try {
-    const res = await fetch(`${BASE_URL}/image/upload`, { method: "POST", body: formData })
-    if (!res.ok) return null
+    const endpoint = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`
+    const res = await fetch(endpoint, { method: "POST", body: formData })
+    if (!res.ok) {
+      const text = await res.text()
+      console.error("[Cloudinary upload failed]", res.status, text)
+      return null
+    }
     const data = await res.json()
     return data.public_id || null
-  } catch {
+  } catch (e) {
+    console.error("[Cloudinary upload error]", e)
     return null
   }
 }
