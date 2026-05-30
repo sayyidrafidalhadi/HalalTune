@@ -27,6 +27,26 @@ export default function FullScreenPlayer() {
   const [showSleepTimer, setShowSleepTimer] = useState(false)
   const progressRef = useRef<HTMLInputElement>(null)
 
+  // Hooks must be called unconditionally — see below for early returns
+  const handleProgressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const pct = parseFloat(e.target.value)
+    const howl = window.__howlRef
+    if (howl?.state() === 'loaded') {
+      const seekTime = (pct / 100) * howl.duration()
+      howl.seek(seekTime)
+    }
+  }, [])
+
+  const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const pct = (e.clientX - rect.left) / rect.width
+    const howl = window.__howlRef
+    if (howl?.state() === 'loaded') {
+      const seekTime = pct * howl.duration()
+      howl.seek(seekTime)
+    }
+  }, [])
+
   const track = getCurrentTrack()
   if (!track) return null
 
@@ -69,25 +89,6 @@ export default function FullScreenPlayer() {
   }
 
   const liked = isLiked(track.id)
-
-  const handleProgressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const pct = parseFloat(e.target.value)
-    const howl = window.__howlRef
-    if (howl?.state() === 'loaded') {
-      const seekTime = (pct / 100) * howl.duration()
-      howl.seek(seekTime)
-    }
-  }, [])
-
-  const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const pct = (e.clientX - rect.left) / rect.width
-    const howl = window.__howlRef
-    if (howl?.state() === 'loaded') {
-      const seekTime = pct * howl.duration()
-      howl.seek(seekTime)
-    }
-  }, [])
 
   const repeatIcon = repeatMode === 'one' ? 'fa-repeat text-white' : 'fa-repeat'
   const repeatClass = repeatMode !== 'off' ? 'text-white' : 'text-white/50'
