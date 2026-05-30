@@ -78,27 +78,29 @@ export default function ProfilePage() {
 
           <div className="flex-1 min-w-0">
             {editing ? (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <input
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="flex-1 h-10 px-3 rounded-lg bg-white/10 border border-white/20 text-white text-lg font-bold focus:outline-none focus:border-white/40"
+                  className="w-full min-w-0 sm:flex-1 h-10 px-3 rounded-lg bg-white/10 border border-white/20 text-white text-lg font-bold focus:outline-none focus:border-white/40"
                   autoFocus
                 />
-                <button
-                  onClick={handleSaveProfile}
-                  disabled={saving || !displayName.trim()}
-                  className="px-4 h-10 rounded-lg bg-white text-black text-sm font-semibold hover:bg-white/90 transition-colors disabled:opacity-50"
-                >
-                  {saving ? "..." : "Save"}
-                </button>
-                <button
-                  onClick={() => { setEditing(false); setDisplayName(user.displayName || "") }}
-                  className="px-3 h-10 rounded-lg bg-white/10 text-white/60 text-sm hover:bg-white/20 transition-colors"
-                >
-                  Cancel
-                </button>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={handleSaveProfile}
+                    disabled={saving || !displayName.trim()}
+                    className="flex-1 sm:flex-none px-4 h-10 rounded-lg bg-white text-black text-sm font-semibold hover:bg-white/90 transition-colors disabled:opacity-50"
+                  >
+                    {saving ? "..." : "Save"}
+                  </button>
+                  <button
+                    onClick={() => { setEditing(false); setDisplayName(user.displayName || "") }}
+                    className="flex-1 sm:flex-none px-3 h-10 rounded-lg bg-white/10 text-white/60 text-sm hover:bg-white/20 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="flex items-center gap-3">
@@ -123,7 +125,7 @@ export default function ProfilePage() {
       </motion.div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {[
           { label: "Liked", value: likedTracks.length, icon: "fa-heart", onClick: () => navigate("/library") },
           { label: "History", value: historyList.length, icon: "fa-clock-rotate", onClick: () => navigate("/library") },

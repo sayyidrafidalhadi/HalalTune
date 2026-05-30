@@ -75,17 +75,16 @@ function TrackCard({
       onClick={onPlay}
       whileTap={{ scale: 0.95 }}
       className={cn(
-        "group relative flex-shrink-0 text-left",
-        dense ? "w-[140px]" : "w-[170px]"
+        "group relative flex-shrink-0 text-left outline-none focus:outline-none focus-visible:ring-0 rounded-2xl",
+        dense ? "w-[140px]" : "w-[170px]",
+        isActive && "ring-2 ring-emerald-400 ring-offset-2 ring-offset-black"
       )}
     >
       <div
         className={cn(
           "relative overflow-hidden rounded-2xl mb-3",
           "shadow-lg shadow-black/40",
-          "ring-1 ring-white/5",
-          dense ? "aspect-square" : "aspect-square",
-          isActive && "ring-2 ring-emerald-400 ring-offset-2 ring-offset-black"
+          dense ? "aspect-square" : "aspect-square"
         )}
       >
         {track.coverArt ? (

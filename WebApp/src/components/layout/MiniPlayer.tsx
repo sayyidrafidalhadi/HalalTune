@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { useLocation } from 'react-router-dom'
 import { usePlayerStore } from '@/store/playerStore'
 import { useUIStore } from '@/store/uiStore'
 import { cn, formatTime } from '@/lib/utils'
@@ -49,6 +50,7 @@ function QuranMiniPlayer({ track, isPlaying, togglePlay }: {
 }
 
 export default function MiniPlayer() {
+  const location = useLocation()
   const {
     currentTrack: getCurrentTrack, isPlaying, progress, currentTime, duration,
     togglePlay, playNext, playPrev,
@@ -57,6 +59,7 @@ export default function MiniPlayer() {
 
   const track = getCurrentTrack()
   if (!track) return null
+  if (['/profile', '/settings', '/search'].includes(location.pathname)) return null
 
   return (
     <AnimatePresence>
