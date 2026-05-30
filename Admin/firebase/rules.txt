@@ -14,9 +14,8 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ── Users ──
-    // Anyone authenticated can read. Each user can create or update their own doc.
-    // The Admin app's ensureProfile() creates the doc automatically on first sign-in.
-    // halaltune.app@gmail.com gets role: 'admin' from the app code.
+    // Any authenticated user can read. Each user can create/update their own doc.
+    // ensureProfile() creates the doc automatically on first sign-in.
     match /users/{userId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.auth.uid == userId;
@@ -25,43 +24,37 @@ service cloud.firestore {
     }
 
     // ── Tracks ──
-    // Public read. Only halaltune.app@gmail.com can write.
+    // Public read. Any authenticated user can create/update/delete.
+    // This allows anyone who signs in via the admin panel to upload tracks.
     match /tracks/{trackId} {
       allow read: if true;
-      allow create: if request.auth != null
-        && request.auth.token.email == 'halaltune.app@gmail.com';
-      allow update: if request.auth != null
-        && request.auth.token.email == 'halaltune.app@gmail.com';
-      allow delete: if request.auth != null
-        && request.auth.token.email == 'halaltune.app@gmail.com';
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null;
     }
 
     // ── Artists ──
     match /artists/{docId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null
-        && request.auth.token.email == 'halaltune.app@gmail.com';
+      allow create, update, delete: if request.auth != null;
     }
 
     // ── Albums ──
     match /albums/{docId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null
-        && request.auth.token.email == 'halaltune.app@gmail.com';
+      allow create, update, delete: if request.auth != null;
     }
 
     // ── Playlists ──
     match /playlists/{docId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null
-        && request.auth.token.email == 'halaltune.app@gmail.com';
+      allow create, update, delete: if request.auth != null;
     }
 
     // ── Categories ──
     match /categories/{docId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null
-        && request.auth.token.email == 'halaltune.app@gmail.com';
+      allow create, update, delete: if request.auth != null;
     }
 
   }

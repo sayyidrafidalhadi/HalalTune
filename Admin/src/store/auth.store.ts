@@ -2,7 +2,21 @@ import { create } from 'zustand';
 import type { Profile, UserRole } from '@/types';
 import { authService, ensureProfile } from '@/services/auth';
 import { auth } from '@/lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+
+function makePartialProfile(fbUser: { uid: string; email?: string | null; displayName?: string | null; photoURL?: string | null }): Profile {
+  return {
+    id: fbUser.uid,
+    email: fbUser.email || '',
+    display_name: fbUser.displayName || null,
+    avatar_url: fbUser.photoURL || null,
+    role: 'user' as UserRole,
+    is_banned: false,
+    is_verified_creator: false,
+    ban_reason: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
 
 interface AuthState {
   user: Profile | null;
@@ -22,47 +36,33 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   initialize: async () => {
     try {
+      await auth.authStateReady();
       const fbUser = auth.currentUser;
-      if (fbUser) {
-        const profile = await ensureProfile(fbUser);
-        set({ user: profile, isAuthenticated: true, isLoading: false });
-      } else {
-        set({ isLoading: false });
-      }
-    } catch {
-      set({ isLoading: false });
-    }
-
-    onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         try {
           const profile = await ensureProfile(fbUser);
-          set({ user: profile, isAuthenticated: true });
+          set({ user: profile, isAuthenticated: true, isLoading: false });
         } catch {
-          // Firestore might not be available — still mark as authenticated
-          const partial: Profile = {
-            id: fbUser.uid,
-            email: fbUser.email || '',
-            display_name: fbUser.displayName || null,
-            avatar_url: fbUser.photoURL || null,
-            role: 'user' as UserRole,
-            is_banned: false,
-            is_verified_creator: false,
-            ban_reason: null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          };
-          set({ user: partial, isAuthenticated: true });
+          set({ user: makePartialProfile(fbUser), isAuthenticated: true, isLoading: false });
         }
-      } else {
-        set({ user: null, isAuthenticated: false });
+        return;
       }
-    });
+    } catch {
+      // fall through to set loading false below
+    }
+    set({ isLoading: false });
   },
 
   signInWithGoogle: async () => {
-    const profile = await authService.signInWithGoogle();
-    set({ user: profile, isAuthenticated: true });
+    try {
+      const profile = await authService.signInWithGoogle();
+      set({ user: profile, isAuthenticated: true });
+    } catch {
+      const fbUser = auth.currentUser;
+      if (fbUser) {
+        set({ user: makePartialProfile(fbUser), isAuthenticated: true });
+      }
+    }
   },
 
   signOut: async () => {
