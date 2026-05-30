@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 import { SURAHS, RECITERS, TAFSIR_AUDIO } from "@/data/quran"
 import { EmptyState } from "@/components/shared"
 import { easings } from "@/lib/easings"
+import QuranSurahView from "./QuranSurahView"
 import type { Reciter, Surah } from "@/data/quran"
 
 type QuranTab = "surahs" | "reciters" | "bookmarks"
@@ -90,6 +91,7 @@ export default function QuranPage() {
   const [search, setSearch] = useState("")
   const [revelationFilter, setRevelationFilter] = useState<string | null>(null)
   const [selectedReciter, setSelectedReciter] = useState(RECITERS[0].id)
+  const [selectedSurah, setSelectedSurah] = useState<number | null>(null)
   const [detail, setDetail] = useState<SurahView | null>(null)
   const [bookmarkIds, setBookmarkIds] = useState<number[]>(getBookmarks)
   const [continueData, setContinueData] = useState(getContinue)
@@ -100,6 +102,7 @@ export default function QuranPage() {
   const handlePlay = useCallback((surah: Surah, reciter?: string) => {
     const r = reciter || selectedReciter
     setContinueData({ surah: surah.number, reciter: r, timestamp: Date.now() })
+    setSelectedSurah(surah.number)
   }, [selectedReciter])
 
   const toggleBookmark = useCallback((number: number) => {
@@ -132,6 +135,18 @@ export default function QuranPage() {
     () => (continueData ? SURAHS.find((s) => s.number === continueData.surah) : null),
     [continueData]
   )
+
+  if (selectedSurah) {
+    return (
+      <div className="pb-8">
+        <QuranSurahView
+          surahNumber={selectedSurah}
+          reciterId={selectedReciter}
+          onClose={() => setSelectedSurah(null)}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="pb-8 max-w-6xl mx-auto">
