@@ -24,7 +24,7 @@ const QUERY_KEYS = {
 export function useTracks() {
   return useQuery({
     queryKey: QUERY_KEYS.tracks,
-    queryFn: db.getTracks,
+    queryFn: () => db.getTracks(),
   });
 }
 
@@ -39,7 +39,7 @@ export function useTrack(id: string) {
 export function useCreateTrack() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: db.createTrack,
+    mutationFn: (data: Partial<import('@/types').Track>) => db.createTrack(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tracks });
       toast.success('Track created successfully');
@@ -64,7 +64,7 @@ export function useUpdateTrack() {
 export function useDeleteTrack() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: db.deleteTrack,
+    mutationFn: (id: string) => db.deleteTrack(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tracks });
       toast.success('Track deleted successfully');
@@ -76,7 +76,7 @@ export function useDeleteTrack() {
 export function useArtists() {
   return useQuery({
     queryKey: QUERY_KEYS.artists,
-    queryFn: db.getArtists,
+    queryFn: () => db.getArtists(),
   });
 }
 
@@ -91,7 +91,7 @@ export function useArtist(id: string) {
 export function useCreateArtist() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: db.createArtist,
+    mutationFn: (data: Partial<import('@/types').Artist>) => db.createArtist(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.artists });
       toast.success('Artist created successfully');
@@ -116,7 +116,7 @@ export function useUpdateArtist() {
 export function useDeleteArtist() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: db.deleteArtist,
+    mutationFn: (id: string) => db.deleteArtist(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.artists });
       toast.success('Artist deleted successfully');
@@ -128,7 +128,7 @@ export function useDeleteArtist() {
 export function useAlbums() {
   return useQuery({
     queryKey: QUERY_KEYS.albums,
-    queryFn: db.getAlbums,
+    queryFn: () => db.getAlbums(),
   });
 }
 
@@ -143,7 +143,7 @@ export function useAlbum(id: string) {
 export function useCreateAlbum() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: db.createAlbum,
+    mutationFn: (data: Partial<import('@/types').Album>) => db.createAlbum(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.albums });
       toast.success('Album created successfully');
@@ -168,7 +168,7 @@ export function useUpdateAlbum() {
 export function useDeleteAlbum() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: db.deleteAlbum,
+    mutationFn: (id: string) => db.deleteAlbum(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.albums });
       toast.success('Album deleted successfully');
@@ -180,14 +180,14 @@ export function useDeleteAlbum() {
 export function usePlaylists() {
   return useQuery({
     queryKey: QUERY_KEYS.playlists,
-    queryFn: db.getPlaylists,
+    queryFn: () => db.getPlaylists(),
   });
 }
 
 export function usePodcasts() {
   return useQuery({
     queryKey: QUERY_KEYS.podcasts,
-    queryFn: db.getPodcasts,
+    queryFn: () => db.getPodcasts(),
   });
 }
 
@@ -202,28 +202,28 @@ export function useEpisodes(podcastId: string) {
 export function useReports() {
   return useQuery({
     queryKey: QUERY_KEYS.reports,
-    queryFn: db.getReports,
+    queryFn: () => db.getReports(),
   });
 }
 
 export function useCategories() {
   return useQuery({
     queryKey: QUERY_KEYS.categories,
-    queryFn: db.getCategories,
+    queryFn: () => db.getCategories(),
   });
 }
 
 export function useUsers() {
   return useQuery({
     queryKey: QUERY_KEYS.users,
-    queryFn: db.getUsers,
+    queryFn: () => db.getUsers(),
   });
 }
 
 export function useDashboardStats() {
   return useQuery({
     queryKey: QUERY_KEYS.dashboardStats,
-    queryFn: db.getDashboardStats,
+    queryFn: () => db.getDashboardStats(),
   });
 }
 

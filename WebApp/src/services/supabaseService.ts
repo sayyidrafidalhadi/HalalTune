@@ -23,17 +23,40 @@ async function getById<T>(collectionName: string, id: string): Promise<T | null>
 
 // ── Tracks (from library store + Firestore fallback) ───────────────────
 
+function mapFirestoreDoc(d: { id: string; data: () => Record<string, unknown> }): Track {
+  const data = d.data();
+  return {
+    id: d.id,
+    title: (data.title as string) || '',
+    artist: (data.artist_name as string) || (data.artist as string) || '',
+    url: (data.audio_url as string) || (data.url as string) || '',
+    coverArt: (data.cover_url as string) || (data.coverArt as string) || undefined,
+    streamCount: (data.plays_count as number) || 0,
+    likeCount: 0,
+    duration: (data.duration as number) || 0,
+    createdAt: data.created_at ? new Date(data.created_at as string).getTime() : Date.now(),
+  };
+}
+
 export async function fetchTracks(): Promise<Track[]> {
   const local = useLibraryStore.getState().tracks;
   if (local.length > 0) return local;
   const snap = await getDocs(collection(db, 'tracks'));
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Track));
+  return snap.docs.map(mapFirestoreDoc);
+}
+
+export async function fetchAndSetTracks(): Promise<void> {
+  const snap = await getDocs(collection(db, 'tracks'));
+  const mapped = snap.docs.map(mapFirestoreDoc);
+  useLibraryStore.getState().setTracks(mapped);
 }
 
 export async function fetchTrackById(id: string): Promise<Track | null> {
   const local = useLibraryStore.getState().tracks.find((t) => t.id === id);
   if (local) return local;
-  return getById<Track>('tracks', id);
+  const snap = await getDoc(doc(db, 'tracks', id));
+  if (!snap.exists()) return null;
+  return mapFirestoreDoc(snap);
 }
 
 export async function fetchTracksByArtist(artistId: string): Promise<Track[]> {
@@ -41,7 +64,7 @@ export async function fetchTracksByArtist(artistId: string): Promise<Track[]> {
   if (local.length > 0) return local;
   const q = query(collection(db, 'tracks'), where('artist_id', '==', artistId));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Track));
+  return snap.docs.map(mapFirestoreDoc);
 }
 
 export async function fetchRecentTracks(limitCount = 20): Promise<Track[]> {
@@ -49,7 +72,7 @@ export async function fetchRecentTracks(limitCount = 20): Promise<Track[]> {
   if (local.length > 0) return local.slice(0, limitCount);
   const q = query(collection(db, 'tracks'), orderBy('created_at', 'desc'), limit(limitCount));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Track));
+  return snap.docs.map(mapFirestoreDoc);
 }
 
 export async function fetchPopularTracks(limitCount = 20): Promise<Track[]> {
@@ -57,7 +80,7 @@ export async function fetchPopularTracks(limitCount = 20): Promise<Track[]> {
   if (local.length > 0) return [...local].sort((a, b) => (b.streamCount || 0) - (a.streamCount || 0)).slice(0, limitCount);
   const q = query(collection(db, 'tracks'), orderBy('plays_count', 'desc'), limit(limitCount));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Track));
+  return snap.docs.map(mapFirestoreDoc);
 }
 
 export async function searchTracks(searchTerm: string): Promise<Track[]> {
@@ -68,7 +91,7 @@ export async function searchTracks(searchTerm: string): Promise<Track[]> {
   }
   const snap = await getDocs(collection(db, 'tracks'));
   return snap.docs
-    .map((d) => ({ id: d.id, ...d.data() } as Track))
+    .map(mapFirestoreDoc)
     .filter((t) => t.title.toLowerCase().includes(term) || t.artist.toLowerCase().includes(term))
     .slice(0, 20);
 }

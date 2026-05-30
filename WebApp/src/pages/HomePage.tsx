@@ -1,4 +1,4 @@
-import { useRef, useMemo, useCallback } from "react"
+import { useRef, useMemo, useCallback, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import { useLibraryStore } from "@/store/libraryStore"
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { EmptyState } from "@/components/shared"
 import { easings } from "@/lib/easings"
 import { SURAHS, RECITERS } from "@/data/quran"
+import { fetchAndSetTracks } from "@/services/supabaseService"
 import { fetchSurahDetail } from "@/services/quranApi"
 import type { Track } from "@/types"
 
@@ -222,11 +223,17 @@ const heroGradient = () => {
 }
 
 export default function HomePage() {
-  const { tracks, speedDialPicks } = useLibraryStore()
+  const { tracks, speedDialPicks, setTracks } = useLibraryStore()
   const { setQueue, setQuranAyahs, isPlaying, togglePlay, currentTrack } = usePlayerStore()
   const { historyList } = useAuthStore()
   const { setFsPlayerOpen } = useUIStore()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (tracks.length === 0) {
+      fetchAndSetTracks()
+    }
+  }, [tracks.length])
 
   const nowPlaying = currentTrack()
 
