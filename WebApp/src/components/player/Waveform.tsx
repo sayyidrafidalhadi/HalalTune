@@ -55,7 +55,7 @@ export default function Waveform({ animated = true, barCount = BAR_COUNT, classN
         const alpha = 0.3 + values[i] * 0.7
         ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
         ctx.beginPath()
-        ctx.roundRect(x, y, barW, barH, barW / 2)
+        ctx.roundRect(x, y, Math.max(1, barW), barH, Math.max(0, barW / 2))
         ctx.fill()
       }
 

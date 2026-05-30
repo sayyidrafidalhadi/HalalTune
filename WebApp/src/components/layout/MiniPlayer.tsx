@@ -65,16 +65,11 @@ export default function MiniPlayer() {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 260, damping: 25 }}
-        className="fixed bottom-0 left-0 w-full z-[200] md:bottom-0 md:left-sidebar md:w-[calc(100%-250px)]
-                   md:h-player-desktop h-player-mobile
+        className="fixed bottom-0 left-0 w-full z-[200] hidden md:block
+                   md:bottom-0 md:left-sidebar md:w-[calc(100%-250px)]
+                   md:h-player-desktop
                    md:bg-surface md:border-t md:border-white/10
-                   md:rounded-none
-                   md:bottom-0
-                   max-md:bottom-bottom-nav
-                   max-md:left-3 max-md:right-3 max-md:w-auto
-                   max-md:h-player-mobile max-md:rounded-2xl
-                   max-md:bg-black/70 max-md:backdrop-blur-xl
-                   max-md:border max-md:border-white/10"
+                   md:rounded-none"
       >
         <div className="absolute top-0 left-0 w-full h-1 bg-white/10">
           <div
