@@ -42,12 +42,37 @@ export function TrackGridSkeleton({ count = 6 }: { count?: number }) {
 
 export function PageSkeleton() {
   return (
-    <div className="p-6 space-y-6">
-      <Skeleton className="h-8 w-48" />
-      <div className="space-y-2">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <TrackRowSkeleton key={i} />
-        ))}
+    <div className="space-y-8">
+      {/* Hero */}
+      <div className="flex items-center gap-4">
+        <Skeleton className="w-20 h-20 md:w-28 md:h-28 rounded-2xl" />
+        <div className="space-y-2 flex-1">
+          <Skeleton className="h-5 w-3/5" />
+          <Skeleton className="h-4 w-2/5" />
+          <Skeleton className="h-3 w-1/4" />
+        </div>
+      </div>
+      {/* Cards row */}
+      <div className="space-y-3">
+        <Skeleton className="h-4 w-32" />
+        <div className="flex gap-3 overflow-hidden">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="w-[150px] shrink-0 space-y-2">
+              <Skeleton className="aspect-square rounded-2xl" />
+              <Skeleton className="h-3 w-4/5" />
+              <Skeleton className="h-2.5 w-3/5" />
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Track rows */}
+      <div className="space-y-3">
+        <Skeleton className="h-4 w-40" />
+        <div className="space-y-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <TrackRowSkeleton key={i} />
+          ))}
+        </div>
       </div>
     </div>
   )

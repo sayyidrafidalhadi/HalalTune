@@ -24,7 +24,9 @@ export default function AppLayout() {
         <TopBar />
 
         <main className={`flex-1 overflow-y-auto overflow-x-hidden
-          ${hasTrack ? "pb-player-desktop max-md:pb-[calc(70px+68px)]" : "max-md:pb-bottom-nav"}
+          ${hasTrack
+            ? "pb-[calc(70px+68px+env(safe-area-inset-bottom))]"
+            : "pb-[calc(68px+env(safe-area-inset-bottom))]"}
           px-4 md:px-8 pt-4 md:pt-6`}
         >
           <Outlet />
