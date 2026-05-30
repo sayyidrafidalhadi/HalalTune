@@ -1,161 +1,183 @@
-import type { Track, Playlist, HistoryEntry } from "@/types"
-import { useLibraryStore } from "@/store/libraryStore"
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, orderBy, limit, where, setDoc, Timestamp } from 'firebase/firestore';
+import type { Track, Playlist, HistoryEntry } from '@/types';
+import { useLibraryStore } from '@/store/libraryStore';
 
-const PLAYLISTS_KEY = "halaltune_playlists"
-const LIKES_KEY = "halaltune_likes"
-const HISTORY_KEY = "halaltune_history"
-const DOWNLOADS_KEY = "halaltune_downloads"
+const firebaseConfig = {
+  apiKey: "AIzaSyB2ZpsWlcZX9B75X2wLn5u_GQM21v0LEtU",
+  authDomain: "halaltune-736b6.firebaseapp.com",
+  projectId: "halaltune-736b6",
+  storageBucket: "halaltune-736b6.firebasestorage.app",
+  messagingSenderId: "316147520878",
+  appId: "1:316147520878:web:7f2d26508b278fb7a31d7f",
+};
 
-function getStore<T>(key: string): Record<string, T> {
-  try { return JSON.parse(localStorage.getItem(key) || "{}") } catch { return {} }
+const app = initializeApp(firebaseConfig, 'halaltune-webapp');
+const db = getFirestore(app);
+
+async function getById<T>(collectionName: string, id: string): Promise<T | null> {
+  const snap = await getDoc(doc(db, collectionName, id));
+  if (!snap.exists()) return null;
+  return { id: snap.id, ...snap.data() } as unknown as T;
 }
-function setStore<T>(key: string, data: Record<string, T>) {
-  localStorage.setItem(key, JSON.stringify(data))
-}
 
-function getAllTracks(): Track[] {
-  return useLibraryStore.getState().tracks
-}
-
-// ── Tracks (from library store) ──────────────────────────────────────
+// ── Tracks (from library store + Firestore fallback) ───────────────────
 
 export async function fetchTracks(): Promise<Track[]> {
-  return getAllTracks()
+  const local = useLibraryStore.getState().tracks;
+  if (local.length > 0) return local;
+  const snap = await getDocs(collection(db, 'tracks'));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Track));
 }
 
 export async function fetchTrackById(id: string): Promise<Track | null> {
-  return getAllTracks().find((t) => t.id === id) || null
+  const local = useLibraryStore.getState().tracks.find((t) => t.id === id);
+  if (local) return local;
+  return getById<Track>('tracks', id);
 }
 
 export async function fetchTracksByArtist(artistId: string): Promise<Track[]> {
-  return getAllTracks().filter((t) => t.artist === artistId)
+  const local = useLibraryStore.getState().tracks.filter((t) => t.artist === artistId);
+  if (local.length > 0) return local;
+  const q = query(collection(db, 'tracks'), where('artist_id', '==', artistId));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Track));
 }
 
 export async function fetchRecentTracks(limitCount = 20): Promise<Track[]> {
-  return getAllTracks().slice(0, limitCount)
+  const local = useLibraryStore.getState().tracks;
+  if (local.length > 0) return local.slice(0, limitCount);
+  const q = query(collection(db, 'tracks'), orderBy('created_at', 'desc'), limit(limitCount));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Track));
 }
 
 export async function fetchPopularTracks(limitCount = 20): Promise<Track[]> {
-  return [...getAllTracks()].sort((a, b) => (b.streamCount || 0) - (a.streamCount || 0)).slice(0, limitCount)
+  const local = useLibraryStore.getState().tracks;
+  if (local.length > 0) return [...local].sort((a, b) => (b.streamCount || 0) - (a.streamCount || 0)).slice(0, limitCount);
+  const q = query(collection(db, 'tracks'), orderBy('plays_count', 'desc'), limit(limitCount));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Track));
 }
 
 export async function searchTracks(searchTerm: string): Promise<Track[]> {
-  const term = searchTerm.toLowerCase()
-  return getAllTracks().filter(
-    (t) => t.title.toLowerCase().includes(term) || t.artist.toLowerCase().includes(term)
-  ).slice(0, 20)
+  const term = searchTerm.toLowerCase();
+  const local = useLibraryStore.getState().tracks;
+  if (local.length > 0) {
+    return local.filter((t) => t.title.toLowerCase().includes(term) || t.artist.toLowerCase().includes(term)).slice(0, 20);
+  }
+  const snap = await getDocs(collection(db, 'tracks'));
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() } as Track))
+    .filter((t) => t.title.toLowerCase().includes(term) || t.artist.toLowerCase().includes(term))
+    .slice(0, 20);
 }
 
-export async function incrementTrackStream(trackId: string): Promise<void> {
-  return
+export async function incrementTrackStream(_trackId: string): Promise<void> {
+  // Stream counting intentionally no-op for now
 }
 
 export async function getUserProfileFromDb(uid: string) {
-  return null
+  return getById('users', uid);
 }
 
-export async function updateUserProfile(uid: string, data: Record<string, unknown>) {}
+export async function updateUserProfile(uid: string, data: Record<string, unknown>) {
+  await setDoc(doc(db, 'users', uid), { ...data, updated_at: new Date().toISOString() }, { merge: true });
+}
 
-// ── Playlists ────────────────────────────────────────────────────────
+// ── Playlists ──────────────────────────────────────────────────────────
 
 export async function fetchUserPlaylists(uid: string): Promise<Playlist[]> {
-  const all = getStore<Playlist>(PLAYLISTS_KEY)
-  return Object.values(all).filter((p) => p.ownerId === uid).sort((a, b) => b.createdAt - a.createdAt)
+  const q = query(collection(db, 'playlists'), where('ownerId', '==', uid), orderBy('createdAt', 'desc'));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Playlist));
 }
 
-export async function createPlaylist(data: Omit<Playlist, "id" | "createdAt">): Promise<string> {
-  const all = getStore<Playlist>(PLAYLISTS_KEY)
-  const id = crypto.randomUUID()
-  all[id] = { ...data, id, createdAt: Date.now() }
-  setStore(PLAYLISTS_KEY, all)
-  return id
+export async function createPlaylist(data: Omit<Playlist, 'id' | 'createdAt'>): Promise<string> {
+  const ref = await addDoc(collection(db, 'playlists'), { ...data, createdAt: Date.now() });
+  return ref.id;
 }
 
-export async function updatePlaylist(id: string, data: Partial<Playlist>): Promise<void> {
-  const all = getStore<Playlist>(PLAYLISTS_KEY)
-  if (all[id]) Object.assign(all[id], data)
-  setStore(PLAYLISTS_KEY, all)
+export async function updatePlaylist(id: string, data: Partial<Playlist>) {
+  await updateDoc(doc(db, 'playlists', id), { ...data });
 }
 
-export async function deletePlaylist(id: string): Promise<void> {
-  const all = getStore<Playlist>(PLAYLISTS_KEY)
-  delete all[id]
-  setStore(PLAYLISTS_KEY, all)
+export async function deletePlaylist(id: string) {
+  await deleteDoc(doc(db, 'playlists', id));
 }
 
-// ── Likes ────────────────────────────────────────────────────────────
+// ── Likes ──────────────────────────────────────────────────────────────
 
 export async function toggleLike(userId: string, trackId: string): Promise<boolean> {
-  const all = getStore<string[]>(LIKES_KEY)
-  const userLikes = all[userId] || []
-  const idx = userLikes.indexOf(trackId)
-  if (idx >= 0) {
-    userLikes.splice(idx, 1)
-    all[userId] = userLikes
-    setStore(LIKES_KEY, all)
-    return false
+  const likeId = `${userId}_${trackId}`;
+  const snap = await getDoc(doc(db, 'likes', likeId));
+  if (snap.exists()) {
+    await deleteDoc(doc(db, 'likes', likeId));
+    return false;
   }
-  all[userId] = [...userLikes, trackId]
-  setStore(LIKES_KEY, all)
-  return true
+  await setDoc(doc(db, 'likes', likeId), { userId, trackId, createdAt: Timestamp.now() });
+  return true;
 }
 
 export async function fetchUserLikedTrackIds(userId: string): Promise<string[]> {
-  const all = getStore<string[]>(LIKES_KEY)
-  return all[userId] || []
+  const q = query(collection(db, 'likes'), where('userId', '==', userId));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => d.data().trackId as string);
 }
 
 export async function fetchLikedTracks(userId: string): Promise<Track[]> {
-  const ids = await fetchUserLikedTrackIds(userId)
-  return getAllTracks().filter((t) => ids.includes(t.id))
+  const ids = await fetchUserLikedTrackIds(userId);
+  if (ids.length === 0) return [];
+  const local = useLibraryStore.getState().tracks;
+  return local.filter((t) => ids.includes(t.id));
 }
 
-// ── History ──────────────────────────────────────────────────────────
+// ── History ────────────────────────────────────────────────────────────
 
 export async function addToHistory(userId: string, trackId: string): Promise<void> {
-  const all = getStore<{ trackId: string; playedAt: number }[]>(HISTORY_KEY)
-  const entries = all[userId] || []
-  entries.unshift({ trackId, playedAt: Date.now() })
-  if (entries.length > 200) entries.length = 200
-  all[userId] = entries
-  setStore(HISTORY_KEY, all)
+  const ref = await addDoc(collection(db, 'history'), {
+    userId,
+    trackId,
+    playedAt: Timestamp.now(),
+  });
 }
 
 export async function fetchUserHistory(userId: string, limitCount = 50): Promise<HistoryEntry[]> {
-  const all = getStore<{ trackId: string; playedAt: number }[]>(HISTORY_KEY)
-  return (all[userId] || []).slice(0, limitCount).map((e) => ({ id: e.trackId, playedAt: e.playedAt }))
+  const q = query(collection(db, 'history'), where('userId', '==', userId), orderBy('playedAt', 'desc'), limit(limitCount));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return { id: data.trackId as string, playedAt: (data.playedAt as Timestamp).toMillis() };
+  });
 }
 
-// ── Downloads ────────────────────────────────────────────────────────
+// ── Downloads ──────────────────────────────────────────────────────────
 
 export async function fetchDownloadedTrackIds(userId: string): Promise<string[]> {
-  const all = getStore<string[]>(DOWNLOADS_KEY)
-  return all[userId] || []
+  const q = query(collection(db, 'downloads'), where('userId', '==', userId));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => d.data().trackId as string);
 }
 
 export async function toggleDownload(userId: string, trackId: string): Promise<boolean> {
-  const all = getStore<string[]>(DOWNLOADS_KEY)
-  const userDownloads = all[userId] || []
-  const idx = userDownloads.indexOf(trackId)
-  if (idx >= 0) {
-    userDownloads.splice(idx, 1)
-    all[userId] = userDownloads
-    setStore(DOWNLOADS_KEY, all)
-    return false
+  const dlId = `${userId}_${trackId}`;
+  const snap = await getDoc(doc(db, 'downloads', dlId));
+  if (snap.exists()) {
+    await deleteDoc(doc(db, 'downloads', dlId));
+    return false;
   }
-  all[userId] = [...userDownloads, trackId]
-  setStore(DOWNLOADS_KEY, all)
-  return true
+  await setDoc(doc(db, 'downloads', dlId), { userId, trackId, createdAt: Timestamp.now() });
+  return true;
 }
 
-// ── Podcasts & Episodes ──────────────────────────────────────────────
+// ── Podcasts & Episodes (deprecated, kept for interface compatibility) ──
 
-export async function fetchPodcasts() { return [] }
-export async function fetchEpisodes(podcastId: string) { return [] }
+export async function fetchPodcasts() { return []; }
+export async function fetchEpisodes(_podcastId: string) { return []; }
 
-// ── Artists & Albums ─────────────────────────────────────────────────
+// ── Artists & Albums (deprecated, kept for interface compatibility) ────
 
-export async function fetchArtists() { return [] }
-export async function fetchArtistById(id: string) { return null }
-export async function fetchAlbums() { return [] }
-export async function fetchAlbumById(id: string) { return null }
+export async function fetchArtists() { return []; }
+export async function fetchArtistById(_id: string) { return null; }
+export async function fetchAlbums() { return []; }
+export async function fetchAlbumById(_id: string) { return null; }

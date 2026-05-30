@@ -1,5 +1,6 @@
 import { useRef, useMemo, useCallback } from "react"
 import { motion } from "framer-motion"
+import { useNavigate } from "react-router-dom"
 import { useLibraryStore } from "@/store/libraryStore"
 import { usePlayerStore } from "@/store/playerStore"
 import { useAuthStore } from "@/store/authStore"
@@ -21,11 +22,11 @@ const MOODS = [
 ]
 
 const QURAN_PICKS = [
-  { name: "Surah Yaseen", reciter: "Mishary Rashid", verses: 83, gradient: "from-white/60 to-black" },
-  { name: "Surah Ar-Rahman", reciter: "Abdul Rahman Al-Sudais", verses: 78, gradient: "from-blue-900/60 to-black" },
-  { name: "Surah Al-Kahf", reciter: "Saad Al-Ghamidi", verses: 110, gradient: "from-purple-900/60 to-black" },
-  { name: "Surah Maryam", reciter: "Yasser Al-Dosari", verses: 98, gradient: "from-amber-900/60 to-black" },
-  { name: "Surah Al-Waqi'ah", reciter: "Maher Al-Muaiqly", verses: 96, gradient: "from-rose-900/60 to-black" },
+  { surahNumber: 36, name: "Surah Yaseen", reciter: "Mishary Rashid", verses: 83, gradient: "from-white/60 to-black" },
+  { surahNumber: 55, name: "Surah Ar-Rahman", reciter: "Abdul Rahman Al-Sudais", verses: 78, gradient: "from-blue-900/60 to-black" },
+  { surahNumber: 18, name: "Surah Al-Kahf", reciter: "Saad Al-Ghamidi", verses: 110, gradient: "from-purple-900/60 to-black" },
+  { surahNumber: 19, name: "Surah Maryam", reciter: "Yasser Al-Dosari", verses: 98, gradient: "from-amber-900/60 to-black" },
+  { surahNumber: 56, name: "Surah Al-Waqi'ah", reciter: "Maher Al-Muaiqly", verses: 96, gradient: "from-rose-900/60 to-black" },
 ]
 
 const containerVariants = {
@@ -225,6 +226,7 @@ export default function HomePage() {
   const { setQueue, setQuranAyahs, isPlaying, togglePlay, currentTrack } = usePlayerStore()
   const { historyList } = useAuthStore()
   const { setFsPlayerOpen } = useUIStore()
+  const navigate = useNavigate()
 
   const nowPlaying = currentTrack()
 
@@ -259,8 +261,8 @@ export default function HomePage() {
     setQueue(tracks, idx)
   }
 
-  const handleQuranPlay = useCallback(async (surahName: string, reciterName: string) => {
-    const surah = SURAHS.find((s) => surahName.includes(s.englishName) || s.name.includes(surahName))
+  const handleQuranPlay = useCallback(async (surahNumber: number, reciterName: string) => {
+    const surah = SURAHS.find((s) => s.number === surahNumber)
     if (!surah) return
     const reciter = RECITERS.find((r) => reciterName.includes(r.name.split(" ")[0]))
     if (!reciter) return
@@ -519,7 +521,7 @@ export default function HomePage() {
               variants={cardVariants}
               custom={i}
               whileTap={{ scale: 0.95 }}
-              onClick={() => handleQuranPlay(item.name, item.reciter)}
+              onClick={() => handleQuranPlay(item.surahNumber, item.reciter)}
               className="flex-shrink-0 w-[220px] snap-start text-left group"
             >
               <div

@@ -1,43 +1,62 @@
-import { supabase } from '../supabase';
+import {
+  signInWithEmailAndPassword,
+  signOut as fbSignOut,
+  onAuthStateChanged,
+  type User,
+} from 'firebase/auth';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 import type { Profile, UserRole } from '@/types';
 
-function mapUser(data: Record<string, unknown>): Profile {
-  return { id: data.uid as string, ...data } as unknown as Profile;
+function mapUser(user: User, profile?: Partial<Profile>): Profile {
+  return {
+    id: user.uid,
+    email: user.email || '',
+    display_name: profile?.display_name || user.displayName || null,
+    avatar_url: profile?.avatar_url || user.photoURL || null,
+    role: profile?.role || 'user',
+    is_banned: profile?.is_banned || false,
+    is_verified_creator: profile?.is_verified_creator || false,
+    ban_reason: profile?.ban_reason || null,
+    created_at: profile?.created_at || user.metadata?.creationTime || new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
 }
 
 export const authService = {
   async signIn(email: string, password: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    return data;
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    return result.user;
   },
 
   async signOut() {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    await fbSignOut(auth);
   },
 
   async getSession() {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    return data.session;
+    return auth.currentUser;
   },
 
   async getCurrentUser() {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error) throw error;
-    return user;
+    return auth.currentUser;
   },
 
   async getProfile(userId: string): Promise<Profile | null> {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('uid', userId)
-      .single();
-    if (error) throw error;
-    if (!data) return null;
-    return mapUser(data);
+    const snap = await getDoc(doc(db, 'users', userId));
+    if (!snap.exists()) return null;
+    const data = snap.data();
+    return {
+      id: snap.id,
+      email: data.email || '',
+      display_name: data.display_name || null,
+      avatar_url: data.avatar_url || null,
+      role: data.role || 'user',
+      is_banned: data.is_banned || false,
+      is_verified_creator: data.is_verified_creator || false,
+      ban_reason: data.ban_reason || null,
+      created_at: data.created_at || '',
+      updated_at: data.updated_at || '',
+    };
   },
 
   async hasRole(userId: string, allowedRoles: UserRole[]): Promise<boolean> {
@@ -46,7 +65,7 @@ export const authService = {
     return allowedRoles.includes(profile.role);
   },
 
-  onAuthStateChange(callback: (event: string, session: unknown) => void) {
-    return supabase.auth.onAuthStateChange(callback);
+  onAuthStateChange(callback: (user: User | null) => void) {
+    return onAuthStateChanged(auth, callback);
   },
 };

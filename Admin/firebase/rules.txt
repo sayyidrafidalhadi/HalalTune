@@ -1,0 +1,132 @@
+╔══════════════════════════════════════════════════════════════════════════════════╗
+║  FIRESTORE SECURITY RULES — halaltune-736b6                                    ║
+║  Deploy: firebase deploy --only firestore:rules                                ║
+╚══════════════════════════════════════════════════════════════════════════════════╝
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper: check admin role ──
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['superadmin', 'admin'];
+    }
+
+    function isModOrAbove() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['superadmin', 'admin', 'moderator'];
+    }
+
+    function isCreator() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['superadmin', 'admin', 'moderator', 'creator'];
+    }
+
+    function isOwner(userId: string) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // ── Users ──
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if isAdmin() || isOwner(userId);
+      allow delete: if isAdmin();
+    }
+
+    // ── Tracks ──
+    match /tracks/{trackId} {
+      allow read: if true;
+      allow create, update, delete: if isCreator();
+    }
+
+    // ── Artists ──
+    match /artists/{artistId} {
+      allow read: if true;
+      allow create, update, delete: if isCreator();
+    }
+
+    // ── Albums ──
+    match /albums/{albumId} {
+      allow read: if true;
+      allow create, update, delete: if isCreator();
+    }
+
+    // ── Playlists ──
+    match /playlists/{playlistId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if isAdmin() || isOwner(resource.data.user_id);
+    }
+
+    // ── Playlist Tracks ──
+    match /playlist_tracks/{ptId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
+    }
+
+    // ── Podcasts ──
+    match /podcasts/{podcastId} {
+      allow read: if true;
+      allow create, update, delete: if isCreator();
+    }
+
+    // ── Episodes ──
+    match /episodes/{episodeId} {
+      allow read: if true;
+      allow create, update, delete: if isCreator();
+    }
+
+    // ── Categories ──
+    match /categories/{catId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ── Reports ──
+    match /reports/{reportId} {
+      allow read: if isModOrAbove() || isOwner(resource.data.reporter_id);
+      allow create: if request.auth != null;
+      allow update, delete: if isModOrAbove();
+    }
+
+    // ── Analytics Events (append-only, admins can read) ──
+    match /analytics_events/{eventId} {
+      allow read: if isAdmin();
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+  }
+}
+
+
+╔══════════════════════════════════════════════════════════════════════════════════╗
+║  FIREBASE STORAGE SECURITY RULES                                               ║
+║  Deploy: firebase deploy --only storage:rules                                  ║
+╚══════════════════════════════════════════════════════════════════════════════════╝
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+  }
+}
+
+
+╔══════════════════════════════════════════════════════════════════════════════════╗
+║  NOTES                                                                         ║
+║                                                                                ║
+║  - Firestore is used for structured data (users, tracks, artists, albums,      ║
+║    playlists, podcasts, episodes, reports, categories, analytics).             ║
+║  - Cloudinary is used for file storage (audio files, images).                  ║
+║  - Firebase Auth handles authentication (email/password).                      ║
+║  - Role hierarchy: superadmin > admin > moderator > creator > user             ║
+╚══════════════════════════════════════════════════════════════════════════════════╝

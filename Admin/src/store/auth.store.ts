@@ -1,7 +1,9 @@
 import { create } from 'zustand';
 import type { Profile, UserRole } from '@/types';
 import { authService } from '@/services/auth';
-import { supabase } from '@/services/supabase';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 
 interface AuthState {
   user: Profile | null;
@@ -21,9 +23,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   initialize: async () => {
     try {
-      const session = await authService.getSession();
-      if (session?.user) {
-        const profile = await authService.getProfile(session.user.id);
+      const fbUser = auth.currentUser;
+      if (fbUser) {
+        const profile = await authService.getProfile(fbUser.uid);
         set({ user: profile, isAuthenticated: true, isLoading: false });
       } else {
         set({ isLoading: false });
@@ -32,23 +34,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ isLoading: false });
     }
 
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        const profile = await authService.getProfile(session.user.id);
+    onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        const profile = await authService.getProfile(fbUser.uid);
         set({ user: profile, isAuthenticated: true });
-      } else if (event === 'SIGNED_OUT') {
+      } else {
         set({ user: null, isAuthenticated: false });
       }
     });
   },
 
   signIn: async (email: string, password: string) => {
-    await authService.signIn(email, password);
-    const session = await authService.getSession();
-    if (session?.user) {
-      const profile = await authService.getProfile(session.user.id);
-      set({ user: profile, isAuthenticated: true });
-    }
+    const fbUser = await authService.signIn(email, password);
+    const profile = await authService.getProfile(fbUser.uid);
+    set({ user: profile, isAuthenticated: true });
   },
 
   signOut: async () => {
@@ -57,7 +56,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   setUser: (user) => set({ user, isAuthenticated: !!user }),
-
   hasRole: (roles: UserRole[]) => {
     const { user } = get();
     if (!user) return false;
