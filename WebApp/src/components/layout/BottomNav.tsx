@@ -44,7 +44,7 @@ export default function BottomNav() {
       >
         {user && user.photoURL ? (
           <div className="w-5 h-5 rounded-full overflow-hidden">
-            <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
+            <img src={user.photoURL} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
           </div>
         ) : (
           <i className={`fa-solid ${profileIcon} text-lg transition-transform duration-200 ${location.pathname === "/profile" ? "scale-110" : ""}`} />

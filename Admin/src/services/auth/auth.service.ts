@@ -1,14 +1,17 @@
 import {
-  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut as fbSignOut,
   onAuthStateChanged,
   type User,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { Profile, UserRole } from '@/types';
 
-function mapUser(user: User, profile?: Partial<Profile>): Profile {
+const ADMIN_EMAIL = 'halaltune.app@gmail.com';
+
+export function mapUser(user: User, profile?: Partial<Profile>): Profile {
   return {
     id: user.uid,
     email: user.email || '',
@@ -23,10 +26,36 @@ function mapUser(user: User, profile?: Partial<Profile>): Profile {
   };
 }
 
+export async function ensureProfile(user: User): Promise<Profile> {
+  const ref = doc(db, 'users', user.uid);
+  const existing = await getDoc(ref);
+  if (existing.exists()) {
+    return { id: existing.id, ...existing.data() } as Profile;
+  }
+
+  const role: UserRole = user.email === ADMIN_EMAIL ? 'admin' : 'user';
+  const profile: Profile = {
+    id: user.uid,
+    email: user.email || '',
+    display_name: user.displayName || null,
+    avatar_url: user.photoURL || null,
+    role,
+    is_banned: false,
+    is_verified_creator: false,
+    ban_reason: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+
+  await setDoc(ref, profile);
+  return profile;
+}
+
 export const authService = {
-  async signIn(email: string, password: string) {
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    return result.user;
+  async signInWithGoogle(): Promise<Profile> {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    return ensureProfile(result.user);
   },
 
   async signOut() {
@@ -44,25 +73,12 @@ export const authService = {
   async getProfile(userId: string): Promise<Profile | null> {
     const snap = await getDoc(doc(db, 'users', userId));
     if (!snap.exists()) return null;
-    const data = snap.data();
-    return {
-      id: snap.id,
-      email: data.email || '',
-      display_name: data.display_name || null,
-      avatar_url: data.avatar_url || null,
-      role: data.role || 'user',
-      is_banned: data.is_banned || false,
-      is_verified_creator: data.is_verified_creator || false,
-      ban_reason: data.ban_reason || null,
-      created_at: data.created_at || '',
-      updated_at: data.updated_at || '',
-    };
+    return { id: snap.id, ...snap.data() } as Profile;
   },
 
-  async hasRole(userId: string, allowedRoles: UserRole[]): Promise<boolean> {
-    const profile = await this.getProfile(userId);
-    if (!profile) return false;
-    return allowedRoles.includes(profile.role);
+  hasRole(user: Profile | null, allowedRoles: UserRole[]): boolean {
+    if (!user) return false;
+    return allowedRoles.includes(user.role);
   },
 
   onAuthStateChange(callback: (user: User | null) => void) {

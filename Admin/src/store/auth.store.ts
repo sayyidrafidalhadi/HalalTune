@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 import type { Profile, UserRole } from '@/types';
-import { authService } from '@/services/auth';
-import { auth, db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { authService, ensureProfile } from '@/services/auth';
+import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
 interface AuthState {
@@ -10,7 +9,7 @@ interface AuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
   initialize: () => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   setUser: (user: Profile | null) => void;
   hasRole: (roles: UserRole[]) => boolean;
@@ -25,7 +24,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const fbUser = auth.currentUser;
       if (fbUser) {
-        const profile = await authService.getProfile(fbUser.uid);
+        const profile = await ensureProfile(fbUser);
         set({ user: profile, isAuthenticated: true, isLoading: false });
       } else {
         set({ isLoading: false });
@@ -36,17 +35,33 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
-        const profile = await authService.getProfile(fbUser.uid);
-        set({ user: profile, isAuthenticated: true });
+        try {
+          const profile = await ensureProfile(fbUser);
+          set({ user: profile, isAuthenticated: true });
+        } catch {
+          // Firestore might not be available — still mark as authenticated
+          const partial: Profile = {
+            id: fbUser.uid,
+            email: fbUser.email || '',
+            display_name: fbUser.displayName || null,
+            avatar_url: fbUser.photoURL || null,
+            role: 'user' as UserRole,
+            is_banned: false,
+            is_verified_creator: false,
+            ban_reason: null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+          set({ user: partial, isAuthenticated: true });
+        }
       } else {
         set({ user: null, isAuthenticated: false });
       }
     });
   },
 
-  signIn: async (email: string, password: string) => {
-    const fbUser = await authService.signIn(email, password);
-    const profile = await authService.getProfile(fbUser.uid);
+  signInWithGoogle: async () => {
+    const profile = await authService.signInWithGoogle();
     set({ user: profile, isAuthenticated: true });
   },
 

@@ -69,7 +69,7 @@ export default function ProfilePage() {
             <div className="shrink-0">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-2xl font-bold overflow-hidden border-2 border-white/10">
               {user.photoURL ? (
-                <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
+                <img src={user.photoURL} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               ) : (
                 (user.displayName?.charAt(0)?.toUpperCase()) || <i className="fa-solid fa-user text-white/40" />
               )}
