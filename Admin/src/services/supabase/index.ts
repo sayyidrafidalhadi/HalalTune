@@ -1,1 +1,1 @@
-export { supabase } from './client';
+// Supabase removed — using Firebase instead

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Upload, Music, ArrowLeft } from 'lucide-react';
 import { FileUpload, Button } from '@/components/ui';
 import { useCreateTrack } from '@/hooks';
-import { uploadService } from '@/services';
+import { db, uploadService } from '@/services';
 import toast from 'react-hot-toast';
 
 export function UploadPage() {
@@ -26,16 +26,39 @@ export function UploadPage() {
     setUploading(true);
     try {
       const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      const duration = 0; // would require audio metadata parsing
+      const duration = 0;
+
+      // Find or create artist
+      const artists = await db.getArtists();
+      let artistId = artists.find((a) => a.name.toLowerCase() === artistName.toLowerCase())?.id;
+      if (!artistId) {
+        const created = await db.createArtist({
+          name: artistName,
+          slug: artistName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+          bio: null,
+          image_url: null,
+          cover_url: null,
+          user_id: null,
+          is_verified: false,
+          monthly_listeners: 0,
+        });
+        artistId = created.id;
+      }
+
       await createTrack({
         title,
         slug,
-        artist_name: artistName,
+        artist_id: artistId,
         audio_url: audioUrl,
         cover_url: coverUrl || null,
         duration,
-        is_published: true,
         tags: [],
+        category_id: null,
+        album_id: null,
+        lyrics: null,
+        is_halal: true,
+        is_published: true,
+        release_date: null,
       });
       toast.success('Track uploaded successfully');
       setTitle('');

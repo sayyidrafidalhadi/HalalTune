@@ -35,7 +35,7 @@ export function TracksPage() {
       header: 'Artist',
       sortable: true,
       render: (track: Track) => (
-        <span className="text-text-secondary">{track.artist_name || track.artist?.name || '-'}</span>
+        <span className="text-text-secondary">{track.artist?.name || '-'}</span>
       ),
     },
     {
@@ -105,7 +105,7 @@ export function TracksPage() {
           data={tracks || []}
           keyExtractor={(t) => t.id}
           isLoading={isLoading}
-          searchKeys={['title', 'artist_name']}
+          searchKeys={['title', 'artist']}
         />
       )}
 
