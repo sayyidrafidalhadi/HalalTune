@@ -1,11 +1,14 @@
 import { useState, useMemo, useCallback, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { SURAHS, RECITERS, TAFSIR_AUDIO } from "@/data/quran"
+import { SURAHS, RECITERS } from "@/data/quran"
 import { EmptyState } from "@/components/shared"
 import { easings } from "@/lib/easings"
-import QuranSurahView from "./QuranSurahView"
+import { fetchSurahDetail } from "@/services/quranApi"
+import { usePlayerStore } from "@/store/playerStore"
+import { useUIStore } from "@/store/uiStore"
 import type { Reciter, Surah } from "@/data/quran"
+import type { Track } from "@/types"
 
 type QuranTab = "surahs" | "reciters" | "bookmarks"
 
@@ -84,26 +87,71 @@ function ReciterCard({ reciter, index, onSelect }: { reciter: Reciter; index: nu
   )
 }
 
-type SurahView = { type: "surah"; surah: Surah } | { type: "reciter"; reciter: Reciter }
-
 export default function QuranPage() {
   const [activeTab, setActiveTab] = useState<QuranTab>("surahs")
   const [search, setSearch] = useState("")
   const [revelationFilter, setRevelationFilter] = useState<string | null>(null)
   const [selectedReciter, setSelectedReciter] = useState(RECITERS[0].id)
-  const [selectedSurah, setSelectedSurah] = useState<number | null>(null)
-  const [detail, setDetail] = useState<SurahView | null>(null)
   const [bookmarkIds, setBookmarkIds] = useState<number[]>(getBookmarks)
   const [continueData, setContinueData] = useState(getContinue)
+  const { setQueue, setQuranAyahs } = usePlayerStore()
+  const { setFsPlayerOpen } = useUIStore()
 
   useEffect(() => { setBookmarks(bookmarkIds) }, [bookmarkIds])
   useEffect(() => { if (continueData) setContinue(continueData) }, [continueData])
 
-  const handlePlay = useCallback((surah: Surah, reciter?: string) => {
+  const handlePlay = useCallback(async (surah: Surah, reciter?: string) => {
     const r = reciter || selectedReciter
     setContinueData({ surah: surah.number, reciter: r, timestamp: Date.now() })
-    setSelectedSurah(surah.number)
-  }, [selectedReciter])
+
+    const detail = await fetchSurahDetail(surah.number, r)
+    if (!detail) return
+
+    const surahName = `${detail.englishName} (${detail.arabicName})`
+    const tracks: Track[] = []
+
+    // Prepend Bismillah for non-Fatihah surahs
+    if (surah.number !== 1) {
+      tracks.push({
+        id: `quran-${surah.number}-bismillah`,
+        title: 'Bismillah',
+        artist: surahName,
+        url: detail.ayahs[0]?.audioUrl.replace(/\/\d+\.mp3$/, '/1.mp3'),
+        isQuran: true,
+        surahNumber: surah.number,
+        ayahNumber: 0,
+        arabicText: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+        translationText: 'In the name of Allah, the Entirely Merciful, the Especially Merciful.',
+        surahName: surahName,
+        duration: 5,
+      })
+    }
+
+    detail.ayahs.forEach((ayah) => {
+      tracks.push({
+        id: `quran-${surah.number}-${ayah.numberInSurah}`,
+        title: `Ayah ${ayah.numberInSurah}`,
+        artist: surahName,
+        url: ayah.audioUrl,
+        isQuran: true,
+        surahNumber: surah.number,
+        ayahNumber: ayah.numberInSurah,
+        arabicText: ayah.text,
+        translationText: ayah.translation,
+        surahName: surahName,
+        duration: 30,
+      })
+    })
+
+    setQuranAyahs(detail.ayahs.map((a) => ({
+      numberInSurah: a.numberInSurah,
+      text: a.text,
+      translation: a.translation,
+      audioUrl: a.audioUrl,
+    })))
+    setQueue(tracks, 0)
+    setFsPlayerOpen(true)
+  }, [selectedReciter, setQueue, setQuranAyahs, setFsPlayerOpen])
 
   const toggleBookmark = useCallback((number: number) => {
     setBookmarkIds((prev) =>
@@ -135,18 +183,6 @@ export default function QuranPage() {
     () => (continueData ? SURAHS.find((s) => s.number === continueData.surah) : null),
     [continueData]
   )
-
-  if (selectedSurah) {
-    return (
-      <div className="pb-8">
-        <QuranSurahView
-          surahNumber={selectedSurah}
-          reciterId={selectedReciter}
-          onClose={() => setSelectedSurah(null)}
-        />
-      </div>
-    )
-  }
 
   return (
     <div className="pb-8 max-w-6xl mx-auto">
@@ -323,41 +359,6 @@ export default function QuranPage() {
               })}
             </div>
           </div>
-
-          {/* Tafsir audio section */}
-          <section className="pt-4">
-            <h2 className="text-sm font-bold text-white/50 uppercase tracking-widest mb-3">
-              <i className="fa-solid fa-book-open mr-2" />
-              Tafsir Audio
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-              {TAFSIR_AUDIO.map((tafsir, i) => {
-                const surah = SURAHS.find((s) => s.number === tafsir.surah)
-                return (
-                  <motion.div
-                    key={tafsir.title}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03, duration: 0.3, ease: easings }}
-                    whileHover={{ y: -2 }}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] cursor-pointer transition-all"
-                  >
-                    <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
-                      <i className="fa-solid fa-headphones text-amber-400/60 text-sm" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{tafsir.title}</p>
-                      <p className="text-xs text-white/40 truncate">{tafsir.speaker} · {Math.floor(tafsir.duration / 60)} min</p>
-                      {surah && <p className="text-[10px] text-white/20 truncate">{surah.arabicName}</p>}
-                    </div>
-                    <button className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-all shrink-0">
-                      <i className="fa-solid fa-play text-xs ml-0.5" />
-                    </button>
-                  </motion.div>
-                )
-              })}
-            </div>
-          </section>
         </motion.div>
       )}
 

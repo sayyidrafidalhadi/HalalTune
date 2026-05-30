@@ -12,6 +12,29 @@ export interface Track {
   likeCount?: number
   duration?: number
   createdAt?: number
+  // Quran-specific
+  isQuran?: boolean
+  surahNumber?: number
+  ayahNumber?: number
+  arabicText?: string
+  translationText?: string
+  surahName?: string
+}
+
+export interface QuranSurahDetail {
+  surahNumber: number
+  name: string
+  arabicName: string
+  englishName: string
+  numberOfAyahs: number
+  ayahs: QuranAyah[]
+}
+
+export interface QuranAyah {
+  numberInSurah: number
+  text: string
+  translation: string
+  audioUrl: string
 }
 
 export interface Playlist {
@@ -44,7 +67,6 @@ export type PageVariant =
   | 'search'
   | 'library'
   | 'quran'
-  | 'podcasts'
   | 'playlist'
   | 'artist'
   | 'album'

@@ -32,20 +32,6 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Audio files — downloads cache first
-  if (
-    url.hostname.includes('cloudinary') ||
-    url.hostname.includes('res.cloudinary') ||
-    event.request.destination === 'audio'
-  ) {
-    event.respondWith(
-      caches.open(DL_CACHE).then((cache) =>
-        cache.match(event.request).then((cached) => cached || fetch(event.request))
-      )
-    );
-    return;
-  }
-
   // Vite assets (hashed) — network first, cache fallback
   if (url.pathname.startsWith('/assets/')) {
     event.respondWith(

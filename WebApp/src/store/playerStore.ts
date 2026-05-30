@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Track, QueueState, RepeatMode, SleepTimerState } from '@/types'
+import type { Track, QueueState, RepeatMode, SleepTimerState, QuranAyah } from '@/types'
 
 function shuffleArray(length: number, currentIndex: number): number[] {
   const indices = Array.from({ length }, (_, i) => i)
@@ -32,6 +32,9 @@ interface PlayerState {
   queue: QueueState[]
 
   currentTrack: () => Track | null
+
+  quranAyahs: QuranAyah[]
+  setQuranAyahs: (ayahs: QuranAyah[]) => void
 
   setQueue: (tracks: Track[], startIndex?: number) => void
   setCurrentTrackIndex: (index: number) => void
@@ -84,6 +87,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   playbackSpeed: 1,
   sleepTimer: { endTime: null, initialMinutes: 0 },
   queue: [],
+  quranAyahs: [],
 
   currentTrack: () => {
     const { currentQueue, currentTrackIndex } = get()
@@ -143,6 +147,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setCurrentTime: (time) => set({ currentTime: time }),
 
   setDuration: (duration) => set({ duration }),
+
+  setQuranAyahs: (ayahs) => set({ quranAyahs: ayahs }),
 
   setProgress: (progress) => set({ progress }),
 

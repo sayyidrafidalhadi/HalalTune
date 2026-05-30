@@ -10,7 +10,6 @@ const navItems = [
   { path: "/search", icon: "fa-magnifying-glass", label: "Search" },
   { path: "/library", icon: "fa-book-open", label: "Library" },
   { path: "/quran", icon: "fa-book-quran", label: "Quran" },
-  { path: "/podcasts", icon: "fa-podcast", label: "Podcasts" },
 ]
 
 export default function Sidebar() {

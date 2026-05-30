@@ -1,4 +1,4 @@
-import { useRef, useMemo } from "react"
+import { useRef, useMemo, useCallback } from "react"
 import { motion } from "framer-motion"
 import { useLibraryStore } from "@/store/libraryStore"
 import { usePlayerStore } from "@/store/playerStore"
@@ -7,6 +7,8 @@ import { useUIStore } from "@/store/uiStore"
 import { cn } from "@/lib/utils"
 import { EmptyState } from "@/components/shared"
 import { easings } from "@/lib/easings"
+import { SURAHS, RECITERS } from "@/data/quran"
+import { fetchSurahDetail } from "@/services/quranApi"
 import type { Track } from "@/types"
 
 const MOODS = [
@@ -24,15 +26,6 @@ const QURAN_PICKS = [
   { name: "Surah Al-Kahf", reciter: "Saad Al-Ghamidi", verses: 110, gradient: "from-purple-900/60 to-black" },
   { name: "Surah Maryam", reciter: "Yasser Al-Dosari", verses: 98, gradient: "from-amber-900/60 to-black" },
   { name: "Surah Al-Waqi'ah", reciter: "Maher Al-Muaiqly", verses: 96, gradient: "from-rose-900/60 to-black" },
-]
-
-const PODCASTS = [
-  { title: "Islamic Insights", host: "Mufti Menk", episodes: 120, color: "#059669" },
-  { title: "Seerah Stories", host: "Yasir Qadhi", episodes: 85, color: "#7c3aed" },
-  { title: "Faith & Reflection", host: "Omar Suleiman", episodes: 64, color: "#2563eb" },
-  { title: "Quran Tafseer", host: "Nouman Ali Khan", episodes: 156, color: "#0891b2" },
-  { title: "Daily Reminders", host: "Mohamed Hoblos", episodes: 43, color: "#d97706" },
-  { title: "Islamic History", host: "Abdul Nasir Jangda", episodes: 92, color: "#dc2626" },
 ]
 
 const containerVariants = {
@@ -229,9 +222,9 @@ const heroGradient = () => {
 
 export default function HomePage() {
   const { tracks, speedDialPicks } = useLibraryStore()
-  const { setQueue, isPlaying, togglePlay, currentTrack } = usePlayerStore()
+  const { setQueue, setQuranAyahs, isPlaying, togglePlay, currentTrack } = usePlayerStore()
   const { historyList } = useAuthStore()
-  const { setHistoryOpen } = useUIStore()
+  const { setFsPlayerOpen } = useUIStore()
 
   const nowPlaying = currentTrack()
 
@@ -265,6 +258,40 @@ export default function HomePage() {
     if (idx === -1) return
     setQueue(tracks, idx)
   }
+
+  const handleQuranPlay = useCallback(async (surahName: string, reciterName: string) => {
+    const surah = SURAHS.find((s) => surahName.includes(s.englishName) || s.name.includes(surahName))
+    if (!surah) return
+    const reciter = RECITERS.find((r) => reciterName.includes(r.name.split(" ")[0]))
+    if (!reciter) return
+
+    const detail = await fetchSurahDetail(surah.number, reciter.id)
+    if (!detail) return
+
+    const surahTitle = `${detail.englishName} (${detail.arabicName})`
+    const tracks: Track[] = detail.ayahs.map((ayah) => ({
+      id: `quran-${surah.number}-${ayah.numberInSurah}`,
+      title: `Ayah ${ayah.numberInSurah}`,
+      artist: surahTitle,
+      url: ayah.audioUrl,
+      isQuran: true,
+      surahNumber: surah.number,
+      ayahNumber: ayah.numberInSurah,
+      arabicText: ayah.text,
+      translationText: ayah.translation,
+      surahName: surahTitle,
+      duration: 30,
+    }))
+
+    setQuranAyahs(detail.ayahs.map((a) => ({
+      numberInSurah: a.numberInSurah,
+      text: a.text,
+      translation: a.translation,
+      audioUrl: a.audioUrl,
+    })))
+    setQueue(tracks, 0)
+    setFsPlayerOpen(true)
+  }, [setQueue, setQuranAyahs, setFsPlayerOpen])
 
   return (
     <motion.div
@@ -492,6 +519,7 @@ export default function HomePage() {
               variants={cardVariants}
               custom={i}
               whileTap={{ scale: 0.95 }}
+              onClick={() => handleQuranPlay(item.name, item.reciter)}
               className="flex-shrink-0 w-[220px] snap-start text-left group"
             >
               <div
@@ -519,38 +547,6 @@ export default function HomePage() {
             </motion.button>
           ))}
         </Carousel>
-      </motion.section>
-
-      {/* ───── Podcasts ───── */}
-      <motion.section variants={sectionVariants} className="mb-10">
-        <SectionHeader title="Podcasts & Lectures" subtitle="Learn and reflect" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {PODCASTS.map((podcast, i) => (
-            <motion.button
-              key={podcast.title}
-              variants={cardVariants}
-              custom={i}
-              whileTap={{ scale: 0.97 }}
-              className="group relative p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] transition-all duration-300 text-left overflow-hidden"
-            >
-              <div
-                className="absolute -top-10 -right-10 w-24 h-24 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity"
-                style={{ backgroundColor: podcast.color }}
-              />
-              <div className="relative z-10">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
-                  style={{ backgroundColor: `${podcast.color}20`, borderColor: `${podcast.color}40` }}
-                >
-                  <i className="fa-solid fa-podcast text-sm" style={{ color: podcast.color }} />
-                </div>
-                <p className="font-bold text-sm text-white truncate mb-1">{podcast.title}</p>
-                <p className="text-xs text-white/40 truncate mb-2">{podcast.host}</p>
-                <p className="text-[10px] text-white/30">{podcast.episodes} episodes</p>
-              </div>
-            </motion.button>
-          ))}
-        </div>
       </motion.section>
 
       {/* ───── Recently Added ───── */}

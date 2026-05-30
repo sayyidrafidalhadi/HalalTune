@@ -4,10 +4,10 @@ import Sidebar from "./Sidebar"
 import BottomNav from "./BottomNav"
 import MiniPlayer from "./MiniPlayer"
 import TopBar from "./TopBar"
+import FullScreenPlayer from "./FullScreenPlayer"
 import { usePlayerStore } from "@/store/playerStore"
 import AudioEngine from "@/components/player/AudioEngine"
 
-const FullScreenPlayer = lazy(() => import("./FullScreenPlayer"))
 const QueueSidebar = lazy(() => import("./QueueSidebar"))
 const MobilePlayer = lazy(() => import("@/components/player/MobilePlayer"))
 
@@ -41,8 +41,8 @@ export default function AppLayout() {
 
       <Suspense fallback={null}>
         <QueueSidebar />
-        <FullScreenPlayer />
       </Suspense>
+      <FullScreenPlayer />
     </div>
   )
 }

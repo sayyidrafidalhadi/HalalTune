@@ -1,303 +1,161 @@
-import { supabase } from "@/supabase"
 import type { Track, Playlist, HistoryEntry } from "@/types"
+import { useLibraryStore } from "@/store/libraryStore"
 
-// ── Helpers ──────────────────────────────────────────────────────────
+const PLAYLISTS_KEY = "halaltune_playlists"
+const LIKES_KEY = "halaltune_likes"
+const HISTORY_KEY = "halaltune_history"
+const DOWNLOADS_KEY = "halaltune_downloads"
 
-function handleError(error: unknown): never {
-  const msg = error instanceof Error ? error.message : "Supabase error"
-  console.error("[Supabase]", msg)
-  throw new Error(msg)
+function getStore<T>(key: string): Record<string, T> {
+  try { return JSON.parse(localStorage.getItem(key) || "{}") } catch { return {} }
+}
+function setStore<T>(key: string, data: Record<string, T>) {
+  localStorage.setItem(key, JSON.stringify(data))
 }
 
-function mapTrack(row: Record<string, unknown>): Track {
-  return {
-    id: row.id as string,
-    title: row.title as string,
-    artist: row.artist as string,
-    url: (row.url as string) || undefined,
-    coverArt: (row.cover_art as string) || (row.coverArt as string) || undefined,
-    language: (row.language as string) || undefined,
-    isMalayalam: (row.is_malayalam as boolean) || undefined,
-    isYoutube: (row.is_youtube as boolean) || undefined,
-    youtubeId: (row.youtube_id as string) || (row.youtubeId as string) || undefined,
-    streamCount: (row.stream_count as number) || (row.streamCount as number) || 0,
-    likeCount: (row.like_count as number) || (row.likeCount as number) || 0,
-    duration: (row.duration as number) || undefined,
-    createdAt: row.created_at ? new Date(row.created_at as string).getTime() : undefined,
-  }
+function getAllTracks(): Track[] {
+  return useLibraryStore.getState().tracks
 }
 
-function mapPlaylist(row: Record<string, unknown>): Playlist {
-  return {
-    id: row.id as string,
-    name: row.name as string,
-    description: (row.description as string) || undefined,
-    coverArt: (row.cover_art as string) || (row.coverArt as string) || undefined,
-    isPublic: row.is_public as boolean,
-    ownerId: (row.owner_id as string) || (row.ownerId as string),
-    trackIds: (row.track_ids as string[]) || (row.trackIds as string[]) || [],
-    createdAt: row.created_at ? new Date(row.created_at as string).getTime() : Date.now(),
-  }
-}
-
-// ── Users ────────────────────────────────────────────────────────────
-
-export async function getUserProfileFromDb(uid: string) {
-  const { data, error } = await supabase.from("users").select("*").eq("uid", uid).single()
-  if (error && error.code !== "PGRST116") handleError(error)
-  return data
-}
-
-export async function updateUserProfile(uid: string, data: Record<string, unknown>) {
-  const { error } = await supabase.from("users").upsert({ uid, ...data }).eq("uid", uid)
-  if (error) handleError(error)
-}
-
-// ── Tracks ───────────────────────────────────────────────────────────
+// ── Tracks (from library store) ──────────────────────────────────────
 
 export async function fetchTracks(): Promise<Track[]> {
-  const { data, error } = await supabase.from("tracks").select("*").order("created_at", { ascending: false })
-  if (error) handleError(error)
-  return (data || []).map(mapTrack)
+  return getAllTracks()
 }
 
 export async function fetchTrackById(id: string): Promise<Track | null> {
-  const { data, error } = await supabase.from("tracks").select("*").eq("id", id).single()
-  if (error) {
-    if (error.code === "PGRST116") return null
-    handleError(error)
-  }
-  return data ? mapTrack(data) : null
+  return getAllTracks().find((t) => t.id === id) || null
 }
 
 export async function fetchTracksByArtist(artistId: string): Promise<Track[]> {
-  const { data, error } = await supabase
-    .from("tracks")
-    .select("*")
-    .eq("artist_id", artistId)
-    .order("created_at", { ascending: false })
-  if (error) handleError(error)
-  return (data || []).map(mapTrack)
+  return getAllTracks().filter((t) => t.artist === artistId)
 }
 
 export async function fetchRecentTracks(limitCount = 20): Promise<Track[]> {
-  const { data, error } = await supabase
-    .from("tracks")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(limitCount)
-  if (error) handleError(error)
-  return (data || []).map(mapTrack)
+  return getAllTracks().slice(0, limitCount)
 }
 
 export async function fetchPopularTracks(limitCount = 20): Promise<Track[]> {
-  const { data, error } = await supabase
-    .from("tracks")
-    .select("*")
-    .order("stream_count", { ascending: false })
-    .limit(limitCount)
-  if (error) handleError(error)
-  return (data || []).map(mapTrack)
+  return [...getAllTracks()].sort((a, b) => (b.streamCount || 0) - (a.streamCount || 0)).slice(0, limitCount)
 }
 
 export async function searchTracks(searchTerm: string): Promise<Track[]> {
-  const term = `%${searchTerm.toLowerCase()}%`
-  const { data, error } = await supabase
-    .from("tracks")
-    .select("*")
-    .or(`title.ilike.${term},artist.ilike.${term}`)
-    .limit(20)
-  if (error) handleError(error)
-  return (data || []).map(mapTrack)
+  const term = searchTerm.toLowerCase()
+  return getAllTracks().filter(
+    (t) => t.title.toLowerCase().includes(term) || t.artist.toLowerCase().includes(term)
+  ).slice(0, 20)
 }
 
 export async function incrementTrackStream(trackId: string): Promise<void> {
-  const { error } = await supabase.rpc("increment_stream_count", { track_id: trackId })
-  if (error) handleError(error)
+  return
 }
+
+export async function getUserProfileFromDb(uid: string) {
+  return null
+}
+
+export async function updateUserProfile(uid: string, data: Record<string, unknown>) {}
 
 // ── Playlists ────────────────────────────────────────────────────────
 
 export async function fetchUserPlaylists(uid: string): Promise<Playlist[]> {
-  const { data, error } = await supabase
-    .from("playlists")
-    .select("*")
-    .eq("owner_id", uid)
-    .order("created_at", { ascending: false })
-  if (error) handleError(error)
-  return (data || []).map(mapPlaylist)
+  const all = getStore<Playlist>(PLAYLISTS_KEY)
+  return Object.values(all).filter((p) => p.ownerId === uid).sort((a, b) => b.createdAt - a.createdAt)
 }
 
 export async function createPlaylist(data: Omit<Playlist, "id" | "createdAt">): Promise<string> {
-  const { data: row, error } = await supabase
-    .from("playlists")
-    .insert({
-      name: data.name,
-      description: data.description || null,
-      cover_art: data.coverArt || null,
-      is_public: data.isPublic,
-      owner_id: data.ownerId,
-      track_ids: data.trackIds,
-    })
-    .select("id")
-    .single()
-  if (error) handleError(error)
-  return row.id as string
+  const all = getStore<Playlist>(PLAYLISTS_KEY)
+  const id = crypto.randomUUID()
+  all[id] = { ...data, id, createdAt: Date.now() }
+  setStore(PLAYLISTS_KEY, all)
+  return id
 }
 
 export async function updatePlaylist(id: string, data: Partial<Playlist>): Promise<void> {
-  const payload: Record<string, unknown> = {}
-  if (data.name !== undefined) payload.name = data.name
-  if (data.description !== undefined) payload.description = data.description
-  if (data.coverArt !== undefined) payload.cover_art = data.coverArt
-  if (data.isPublic !== undefined) payload.is_public = data.isPublic
-  if (data.trackIds !== undefined) payload.track_ids = data.trackIds
-  const { error } = await supabase.from("playlists").update(payload).eq("id", id)
-  if (error) handleError(error)
+  const all = getStore<Playlist>(PLAYLISTS_KEY)
+  if (all[id]) Object.assign(all[id], data)
+  setStore(PLAYLISTS_KEY, all)
 }
 
 export async function deletePlaylist(id: string): Promise<void> {
-  const { error } = await supabase.from("playlists").delete().eq("id", id)
-  if (error) handleError(error)
+  const all = getStore<Playlist>(PLAYLISTS_KEY)
+  delete all[id]
+  setStore(PLAYLISTS_KEY, all)
 }
 
 // ── Likes ────────────────────────────────────────────────────────────
 
 export async function toggleLike(userId: string, trackId: string): Promise<boolean> {
-  const { data: existing } = await supabase
-    .from("likes")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("track_id", trackId)
-    .maybeSingle()
-
-  if (existing) {
-    await supabase.from("likes").delete().eq("id", existing.id)
-    await supabase.rpc("decrement_like_count", { track_id: trackId })
+  const all = getStore<string[]>(LIKES_KEY)
+  const userLikes = all[userId] || []
+  const idx = userLikes.indexOf(trackId)
+  if (idx >= 0) {
+    userLikes.splice(idx, 1)
+    all[userId] = userLikes
+    setStore(LIKES_KEY, all)
     return false
-  } else {
-    await supabase.from("likes").insert({ user_id: userId, track_id: trackId })
-    await supabase.rpc("increment_like_count", { track_id: trackId })
-    return true
   }
+  all[userId] = [...userLikes, trackId]
+  setStore(LIKES_KEY, all)
+  return true
 }
 
 export async function fetchUserLikedTrackIds(userId: string): Promise<string[]> {
-  const { data, error } = await supabase
-    .from("likes")
-    .select("track_id")
-    .eq("user_id", userId)
-  if (error) handleError(error)
-  return (data || []).map((r) => r.track_id as string)
+  const all = getStore<string[]>(LIKES_KEY)
+  return all[userId] || []
 }
 
 export async function fetchLikedTracks(userId: string): Promise<Track[]> {
   const ids = await fetchUserLikedTrackIds(userId)
-  if (ids.length === 0) return []
-  const { data, error } = await supabase.from("tracks").select("*").in("id", ids)
-  if (error) handleError(error)
-  return (data || []).map(mapTrack)
+  return getAllTracks().filter((t) => ids.includes(t.id))
 }
 
 // ── History ──────────────────────────────────────────────────────────
 
 export async function addToHistory(userId: string, trackId: string): Promise<void> {
-  const { error } = await supabase.from("history").insert({
-    user_id: userId,
-    track_id: trackId,
-    played_at: new Date().toISOString(),
-  })
-  if (error) handleError(error)
+  const all = getStore<{ trackId: string; playedAt: number }[]>(HISTORY_KEY)
+  const entries = all[userId] || []
+  entries.unshift({ trackId, playedAt: Date.now() })
+  if (entries.length > 200) entries.length = 200
+  all[userId] = entries
+  setStore(HISTORY_KEY, all)
 }
 
 export async function fetchUserHistory(userId: string, limitCount = 50): Promise<HistoryEntry[]> {
-  const { data, error } = await supabase
-    .from("history")
-    .select("track_id, played_at")
-    .eq("user_id", userId)
-    .order("played_at", { ascending: false })
-    .limit(limitCount)
-  if (error) handleError(error)
-  return (data || []).map((r) => ({
-    id: r.track_id as string,
-    playedAt: new Date(r.played_at as string).getTime(),
-  }))
+  const all = getStore<{ trackId: string; playedAt: number }[]>(HISTORY_KEY)
+  return (all[userId] || []).slice(0, limitCount).map((e) => ({ id: e.trackId, playedAt: e.playedAt }))
 }
 
 // ── Downloads ────────────────────────────────────────────────────────
 
 export async function fetchDownloadedTrackIds(userId: string): Promise<string[]> {
-  const { data, error } = await supabase
-    .from("downloads")
-    .select("track_id")
-    .eq("user_id", userId)
-  if (error) handleError(error)
-  return (data || []).map((r) => r.track_id as string)
+  const all = getStore<string[]>(DOWNLOADS_KEY)
+  return all[userId] || []
 }
 
 export async function toggleDownload(userId: string, trackId: string): Promise<boolean> {
-  const { data: existing } = await supabase
-    .from("downloads")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("track_id", trackId)
-    .maybeSingle()
-
-  if (existing) {
-    await supabase.from("downloads").delete().eq("id", existing.id)
+  const all = getStore<string[]>(DOWNLOADS_KEY)
+  const userDownloads = all[userId] || []
+  const idx = userDownloads.indexOf(trackId)
+  if (idx >= 0) {
+    userDownloads.splice(idx, 1)
+    all[userId] = userDownloads
+    setStore(DOWNLOADS_KEY, all)
     return false
-  } else {
-    await supabase.from("downloads").insert({ user_id: userId, track_id: trackId })
-    return true
   }
+  all[userId] = [...userDownloads, trackId]
+  setStore(DOWNLOADS_KEY, all)
+  return true
 }
 
 // ── Podcasts & Episodes ──────────────────────────────────────────────
 
-export async function fetchPodcasts() {
-  const { data, error } = await supabase.from("podcasts").select("*")
-  if (error) handleError(error)
-  return data || []
-}
-
-export async function fetchEpisodes(podcastId: string) {
-  const { data, error } = await supabase
-    .from("episodes")
-    .select("*")
-    .eq("podcast_id", podcastId)
-    .order("episode_number", { ascending: true })
-  if (error) handleError(error)
-  return data || []
-}
+export async function fetchPodcasts() { return [] }
+export async function fetchEpisodes(podcastId: string) { return [] }
 
 // ── Artists & Albums ─────────────────────────────────────────────────
 
-export async function fetchArtists() {
-  const { data, error } = await supabase.from("artists").select("*")
-  if (error) handleError(error)
-  return data || []
-}
-
-export async function fetchArtistById(id: string) {
-  const { data, error } = await supabase.from("artists").select("*").eq("id", id).single()
-  if (error) {
-    if (error.code === "PGRST116") return null
-    handleError(error)
-  }
-  return data
-}
-
-export async function fetchAlbums() {
-  const { data, error } = await supabase.from("albums").select("*")
-  if (error) handleError(error)
-  return data || []
-}
-
-export async function fetchAlbumById(id: string) {
-  const { data, error } = await supabase.from("albums").select("*").eq("id", id).single()
-  if (error) {
-    if (error.code === "PGRST116") return null
-    handleError(error)
-  }
-  return data
-}
+export async function fetchArtists() { return [] }
+export async function fetchArtistById(id: string) { return null }
+export async function fetchAlbums() { return [] }
+export async function fetchAlbumById(id: string) { return null }

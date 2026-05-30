@@ -2,10 +2,68 @@ import { useEffect, useRef } from 'react'
 import { Howl } from 'howler'
 import { usePlayerStore } from '@/store/playerStore'
 import { useAuthStore } from '@/store/authStore'
-import { incrementTrackStream, addToHistory } from '@/services/supabaseService'
+import { APP_ICON } from '@/lib/constants'
 import type { Track } from '@/types'
 
 const STREAM_THRESHOLD = 30
+
+function updateMediaSession(track: Track | null, isPlaying: boolean) {
+  if (!('mediaSession' in navigator)) return
+
+  if (!track) {
+    navigator.mediaSession.playbackState = 'none'
+    return
+  }
+
+  const isQuran = track.isQuran
+  const title = isQuran ? `Ayah ${track.ayahNumber}` : track.title
+  const artist = isQuran ? (track.surahName || 'Al-Quran') : track.artist
+  const album = isQuran ? 'Al-Quran' : 'HalalTune'
+
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title,
+    artist,
+    album,
+    artwork: [
+      { src: track.coverArt || APP_ICON, sizes: '512x512', type: 'image/png' },
+    ],
+  })
+
+  navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused'
+
+  navigator.mediaSession.setActionHandler('play', () => {
+    usePlayerStore.getState().setIsPlaying(true)
+  })
+  navigator.mediaSession.setActionHandler('pause', () => {
+    usePlayerStore.getState().setIsPlaying(false)
+  })
+  navigator.mediaSession.setActionHandler('previoustrack', () => {
+    usePlayerStore.getState().playPrev()
+  })
+  navigator.mediaSession.setActionHandler('nexttrack', () => {
+    usePlayerStore.getState().playNext()
+  })
+  navigator.mediaSession.setActionHandler('seekforward', () => {
+    const howl = window.__howlRef
+    if (howl?.state() === 'loaded') {
+      howl.seek(Math.min(howl.seek() as number + 10, howl.duration()))
+    }
+  })
+  navigator.mediaSession.setActionHandler('seekbackward', () => {
+    const howl = window.__howlRef
+    if (howl?.state() === 'loaded') {
+      howl.seek(Math.max((howl.seek() as number) - 10, 0))
+    }
+  })
+  navigator.mediaSession.setActionHandler('seekto', (details) => {
+    if (details.seekTime != null) {
+      const howl = window.__howlRef
+      if (howl?.state() === 'loaded') {
+        howl.seek(details.seekTime)
+      }
+    }
+  })
+}
 
 export default function AudioEngine() {
   const howlRef = useRef<Howl | null>(null)
@@ -25,6 +83,7 @@ export default function AudioEngine() {
   useEffect(() => {
     window.__howlRef = null
     streamLoggedRef.current = false
+    updateMediaSession(track, isPlaying)
 
     if (!track?.url) {
       howlRef.current?.unload()
@@ -42,10 +101,12 @@ export default function AudioEngine() {
       onplay: () => {
         usePlayerStore.getState().setIsPlaying(true)
         startRAF()
+        navigator.mediaSession.playbackState = 'playing'
       },
       onpause: () => {
         usePlayerStore.getState().setIsPlaying(false)
         stopRAF()
+        navigator.mediaSession.playbackState = 'paused'
       },
       onend: () => {
         usePlayerStore.getState().playNext()
@@ -74,23 +135,16 @@ export default function AudioEngine() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTrackIndex, currentQueue])
 
-  // Track stream count and history
+  // Track history locally (skip for Quran tracks)
   useEffect(() => {
     streamLoggedRef.current = false
     let checkInterval: ReturnType<typeof setInterval> | null = null
 
-    if (track && isPlaying) {
-      const user = useAuthStore.getState().user
+    if (track && isPlaying && !track.isQuran) {
       checkInterval = setInterval(() => {
         const time = usePlayerStore.getState().currentTime
-
-        // Log stream after listening for 30 seconds
         if (!streamLoggedRef.current && time >= STREAM_THRESHOLD) {
           streamLoggedRef.current = true
-          incrementTrackStream(track.id).catch(() => {})
-          if (user) {
-            addToHistory(user.uid, track.id).catch(() => {})
-          }
           useAuthStore.getState().addToHistory(track.id)
         }
       }, 5000)
@@ -110,6 +164,23 @@ export default function AudioEngine() {
       howl.pause()
     }
   }, [isPlaying])
+
+  // Sync positionState for lock screen progress
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!('mediaSession' in navigator)) return
+      const store = usePlayerStore.getState()
+      const howl = window.__howlRef
+      if (howl?.state() === 'loaded' && howl.playing()) {
+        navigator.mediaSession.setPositionState({
+          duration: howl.duration(),
+          playbackRate: store.playbackSpeed,
+          position: howl.seek() as number,
+        })
+      }
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     howlRef.current?.volume(volume)

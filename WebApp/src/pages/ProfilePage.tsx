@@ -1,24 +1,19 @@
-import { useState, useRef } from "react"
+import { useState } from "react"
 import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
-import { supabase } from "@/supabase"
 import { useAuthStore } from "@/store/authStore"
 import { useLibraryStore } from "@/store/libraryStore"
-import { logout, getUserProfile } from "@/services/authService"
-import { updateUserProfile } from "@/services/supabaseService"
-import { uploadFile } from "@/lib/cloudinary"
+import { logout } from "@/services/authService"
 
 export default function ProfilePage() {
   const { user, likedSongIds, historyList, setUser, setLoading } = useAuthStore()
   const { tracks } = useLibraryStore()
   const navigate = useNavigate()
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [editing, setEditing] = useState(false)
   const [displayName, setDisplayName] = useState(user?.displayName || "")
   const [saving, setSaving] = useState(false)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
-  const [uploadingPhoto, setUploadingPhoto] = useState(false)
 
   const likedTracks = tracks.filter((t) => likedSongIds.has(t.id))
 
@@ -36,36 +31,13 @@ export default function ProfilePage() {
     setSaving(true)
     setStatusMsg(null)
     try {
-      await supabase.auth.updateUser({ data: { display_name: displayName.trim() } })
-      await updateUserProfile(user.uid, { display_name: displayName.trim() })
       setUser({ ...user, displayName: displayName.trim() })
       setStatusMsg("Profile updated")
       setEditing(false)
-    } catch (e: unknown) {
-      setStatusMsg(e instanceof Error ? e.message : "Failed to update profile")
+    } catch {
+      setStatusMsg("Failed to update profile")
     }
     setSaving(false)
-    setTimeout(() => setStatusMsg(null), 3000)
-  }
-
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file || !user) return
-    setUploadingPhoto(true)
-    setStatusMsg(null)
-    try {
-      const publicId = await uploadFile(file, "image")
-      if (publicId) {
-        const photoURL = `https://res.cloudinary.com/dcidrwk1e/image/upload/q_auto/f_auto/v1/${publicId}`
-        await supabase.auth.updateUser({ data: { photo_url: photoURL } })
-        await updateUserProfile(user.uid, { photo_url: photoURL })
-        setUser({ ...user, photoURL })
-        setStatusMsg("Photo updated")
-      }
-    } catch {
-      setStatusMsg("Failed to upload photo")
-    }
-    setUploadingPhoto(false)
     setTimeout(() => setStatusMsg(null), 3000)
   }
 
@@ -94,7 +66,7 @@ export default function ProfilePage() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="flex items-center gap-5">
-          <div className="relative shrink-0">
+            <div className="shrink-0">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-2xl font-bold overflow-hidden border-2 border-white/10">
               {user.photoURL ? (
                 <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
@@ -102,21 +74,6 @@ export default function ProfilePage() {
                 (user.displayName?.charAt(0)?.toUpperCase()) || <i className="fa-solid fa-user text-white/40" />
               )}
             </div>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploadingPhoto}
-              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white text-black flex items-center justify-center text-xs hover:bg-white/90 transition-colors shadow-lg disabled:opacity-50"
-              aria-label="Change photo"
-            >
-              <i className={`fa-solid ${uploadingPhoto ? "fa-spinner fa-spin" : "fa-camera"}`} />
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoUpload}
-              className="hidden"
-            />
           </div>
 
           <div className="flex-1 min-w-0">

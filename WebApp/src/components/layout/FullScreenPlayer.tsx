@@ -8,6 +8,7 @@ import { SPEEDS } from '@/lib/constants'
 import Waveform from '@/components/player/Waveform'
 import LyricsPanel from '@/components/player/LyricsPanel'
 import SleepTimer from '@/components/player/SleepTimer'
+import QuranFullScreenContent from '@/components/player/QuranFullScreenContent'
 
 type Tab = 'playing' | 'queue' | 'lyrics'
 
@@ -28,6 +29,44 @@ export default function FullScreenPlayer() {
 
   const track = getCurrentTrack()
   if (!track) return null
+
+  // Quran full-screen player — entirely different layout
+  if (track.isQuran) {
+    return (
+      <AnimatePresence>
+        {fsPlayerOpen && (
+          <motion.div
+            initial={{ y: '100vh' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100vh' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 35, mass: 0.8 }}
+            className="fixed inset-0 z-[300] flex flex-col will-change-transform transform-gpu"
+          >
+            <div className="absolute inset-0 bg-black" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/60 to-black backdrop-blur-2xl" />
+            <div className="relative z-10 flex flex-col h-full px-5 pt-4 pb-6">
+              <div className="flex items-center justify-between mb-4">
+                <button
+                  onClick={() => setFsPlayerOpen(false)}
+                  className="text-white/70 hover:text-white p-2 -ml-2"
+                  aria-label="Close"
+                >
+                  <i className="fa-solid fa-chevron-down text-xl" />
+                </button>
+                <span className="text-xs font-medium text-white/50 uppercase tracking-widest">
+                  {track.surahName || 'Al-Quran'}
+                </span>
+                <div className="w-10" />
+              </div>
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <QuranFullScreenContent />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    )
+  }
 
   const liked = isLiked(track.id)
 
@@ -66,8 +105,8 @@ export default function FullScreenPlayer() {
           initial={{ y: '100vh' }}
           animate={{ y: 0 }}
           exit={{ y: '100vh' }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed inset-0 z-[300] flex flex-col will-change-transform"
+          transition={{ type: 'spring', stiffness: 400, damping: 35, mass: 0.8 }}
+          className="fixed inset-0 z-[300] flex flex-col will-change-transform transform-gpu"
         >
           {/* Dynamic blurred background */}
           <div className="absolute inset-0 bg-black" />

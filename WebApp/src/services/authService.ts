@@ -1,64 +1,64 @@
-import { supabase } from "@/supabase"
-import type { User } from "@supabase/supabase-js"
+import { initializeApp } from "firebase/app"
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  sendPasswordResetEmail,
+  updateProfile,
+  type User,
+} from "firebase/auth"
 import type { UserProfile } from "@/types"
 
-export type AuthMode = "local" | "session"
+const firebaseConfig = {
+  apiKey: "AIzaSyB2ZpsWlcZX9B75X2wLn5u_GQM21v0LEtU",
+  authDomain: "halaltune-736b6.firebaseapp.com",
+  projectId: "halaltune-736b6",
+  storageBucket: "halaltune-736b6.firebasestorage.app",
+  messagingSenderId: "316147520878",
+  appId: "1:316147520878:web:7f2d26508b278fb7a31d7f",
+}
 
-export function onAuthChange(callback: (user: User | null) => void): () => void {
-  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-    callback(session?.user ?? null)
+const app = initializeApp(firebaseConfig)
+export const auth = getAuth(app)
+
+export function onAuthChange(callback: (user: UserProfile | null) => void): () => void {
+  const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    callback(firebaseUser ? mapFirebaseUser(firebaseUser) : null)
   })
-  return () => subscription.unsubscribe()
+  return unsubscribe
 }
 
-export async function setAuthPersistence(mode: AuthMode): Promise<void> {
-  localStorage.setItem("halaltune_auth_persistence", mode)
+export async function loginWithEmail(email: string, password: string): Promise<UserProfile> {
+  const { user } = await signInWithEmailAndPassword(auth, email, password)
+  return mapFirebaseUser(user)
 }
 
-export async function loginWithEmail(email: string, password: string): Promise<User> {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) throw error
-  return data.user
-}
-
-export async function registerWithEmail(email: string, password: string, displayName: string): Promise<User> {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { display_name: displayName } },
-  })
-  if (error) throw error
-  if (!data.user) throw new Error("Registration failed — check email for confirmation link")
-  return data.user
+export async function registerWithEmail(email: string, password: string, displayName: string): Promise<UserProfile> {
+  const { user } = await createUserWithEmailAndPassword(auth, email, password)
+  await updateProfile(user, { displayName })
+  return mapFirebaseUser(user)
 }
 
 export async function logout(): Promise<void> {
-  const { error } = await supabase.auth.signOut()
-  if (error) throw error
+  await signOut(auth)
 }
 
 export async function resetPassword(email: string): Promise<void> {
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/auth`,
-  })
-  if (error) throw error
+  await sendPasswordResetEmail(auth, email)
 }
 
-export async function getUserProfile(): Promise<UserProfile | null> {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-  return mapSupabaseUser(user)
+export function getCurrentUserSync(): UserProfile | null {
+  const user = auth.currentUser
+  return user ? mapFirebaseUser(user) : null
 }
 
-export function getCurrentUser(): User | null {
-  return supabase.auth.getSession().then(({ data }) => data.session?.user ?? null) as unknown as User | null
-}
-
-export function mapSupabaseUser(user: User): UserProfile {
+export function mapFirebaseUser(user: User): UserProfile {
   return {
-    uid: user.id,
-    displayName: user.user_metadata?.display_name || user.user_metadata?.full_name || undefined,
+    uid: user.uid,
+    displayName: user.displayName || undefined,
     email: user.email || undefined,
-    photoURL: user.user_metadata?.photo_url || user.user_metadata?.avatar_url || undefined,
+    photoURL: user.photoURL || undefined,
   }
 }

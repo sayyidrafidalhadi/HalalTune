@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, createContext, useContext } from "react"
-import { onAuthChange, mapSupabaseUser } from "@/services/authService"
+import { onAuthChange, getCurrentUserSync } from "@/services/authService"
 import { useAuthStore } from "@/store/authStore"
 import { Spinner } from "@/components/shared"
 
@@ -22,16 +22,13 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setLoading(true)
-    const unsubscribe = onAuthChange((supabaseUser) => {
-      if (supabaseUser) {
-        setUser(mapSupabaseUser(supabaseUser))
-      } else {
-        setUser(null)
-      }
+    const stored = getCurrentUserSync()
+    if (stored) setUser(stored)
+    const unsubscribe = onAuthChange((profile) => {
+      setUser(profile)
       setLoading(false)
       setInitialized(true)
     })
-
     return unsubscribe
   }, [setUser, setLoading])
 

@@ -10,7 +10,6 @@ const HomePage = lazy(() => import("@/pages/HomePage"))
 const SearchPage = lazy(() => import("@/pages/SearchPage"))
 const LibraryPage = lazy(() => import("@/pages/LibraryPage"))
 const QuranPage = lazy(() => import("@/pages/QuranPage"))
-const PodcastsPage = lazy(() => import("@/pages/PodcastsPage"))
 const PlaylistPage = lazy(() => import("@/pages/PlaylistPage"))
 const ArtistPage = lazy(() => import("@/pages/ArtistPage"))
 const AlbumPage = lazy(() => import("@/pages/AlbumPage"))
@@ -85,7 +84,6 @@ export default function App() {
                   <Route path="/search" element={<SearchPage />} />
                   <Route path="/library" element={<LibraryPage />} />
                   <Route path="/quran" element={<QuranPage />} />
-                  <Route path="/podcasts" element={<PodcastsPage />} />
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/playlist/:id" element={<PlaylistPage />} />
                   <Route path="/artist/:id" element={<ArtistPage />} />

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { useAuthStore } from "@/store/authStore"
-import { loginWithEmail, registerWithEmail, resetPassword, mapSupabaseUser } from "@/services/authService"
+import { loginWithEmail, registerWithEmail, resetPassword } from "@/services/authService"
 import { APP_ICON } from "@/lib/constants"
 
 type AuthView = "login" | "register" | "forgot"
@@ -32,11 +32,11 @@ export default function AuthPage() {
     setAuthLoading(true)
     try {
       if (view === "register") {
-        const supabaseUser = await registerWithEmail(email, password, displayName)
-        setUser(mapSupabaseUser(supabaseUser))
+        const profile = await registerWithEmail(email, password, displayName)
+        setUser(profile)
       } else {
-        const supabaseUser = await loginWithEmail(email, password)
-        setUser(mapSupabaseUser(supabaseUser))
+        const profile = await loginWithEmail(email, password)
+        setUser(profile)
       }
       navigate("/profile", { replace: true })
     } catch (e: unknown) {

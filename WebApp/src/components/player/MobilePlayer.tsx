@@ -17,7 +17,7 @@ export default function MobilePlayer() {
   const [showExtras, setShowExtras] = useState(false)
 
   const track = getCurrentTrack()
-  if (!track) return null
+  if (!track || track.isQuran) return null
 
   const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2]
 
